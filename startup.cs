@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using prueba.middleware;
 using prueba.services;
 
 namespace prueba
@@ -125,7 +124,6 @@ namespace prueba
             // });
             // Configure the HTTP request pipeline.
             //corremos nuestro middleware
-            app.UseLogsResponse();
 
             if (env.IsDevelopment())
             {
