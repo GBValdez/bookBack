@@ -3,65 +3,67 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using prueba.DTOS;
 using prueba.entities;
-using prueba.filters;
 using prueba.services;
 
 namespace prueba.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class authorsController : ControllerBase
     {
 
 
         private readonly AplicationDBContex context;
-        private readonly getRandomNum num;
         private readonly ILogger<authorsController> logger;
-        public authorsController(AplicationDBContex context, getRandomNum num, ILogger<authorsController> logger)
+        private readonly IMapper mapper;
+        public authorsController(AplicationDBContex context, ILogger<authorsController> logger, IMapper mapper)
         {
             this.context = context;
-            this.num = num;
             this.logger = logger;
-        }
-        // Con un eslas en el inicio de la ruta la ruta ya no es relativa sino absoluta
-        [HttpGet("/getRandom")]
-        [ServiceFilter(typeof(MyFilterAction))]
+            this.mapper = mapper;
 
-        [ResponseCache(Duration = 15)]
-        public ActionResult<Dictionary<string, int>> getRandom()
-        {
-            Dictionary<string, int> dic = new Dictionary<string, int>();
-            dic.Add("num", num.num);
-            return Ok(dic);
         }
+
 
         [HttpGet()]
-        [ServiceFilter(typeof(MyFilterAction))]
-
         public async Task<ActionResult<List<Author>>> get()
         {
-            throw new NotImplementedException();
-            return await context.Authors.Include(x => x.books).ToListAsync();
+            return await context.Authors.ToListAsync();
         }
 
         //Con poner el signo de interrogacion al final del parametro lo hacemos opcional y puedes setear un valor por defecto
-        [HttpGet("{id:int}/{param2=valor2}")]
-        public async Task<ActionResult<Author>> get(int id)
+        [HttpGet("{id:int}", Name = "getAuthorId")]
+        public async Task<ActionResult<authorDto>> get(int id)
         {
-            var author = await context.Authors.Include(x => x.books).FirstOrDefaultAsync(x => x.id == id);
+            Author author = await context.Authors.Include(author => author.Author_Book).ThenInclude(authorBook => authorBook.Book).FirstOrDefaultAsync(authorDB => authorDB.id == id);
             if (author == null)
             {
                 return NotFound();
             }
-            return author;
+            return mapper.Map<authorDto>(author);
+        }
+
+        [HttpGet("{name}")]
+        public async Task<ActionResult<List<authorDto>>> getByName([FromRoute] string name)
+        {
+            var authors = await context.Authors.Where(authorDB => authorDB.name.Contains(name)).ToListAsync();
+            if (authors == null)
+                return NotFound();
+            return mapper.Map<List<authorDto>>(authors);
         }
 
         [HttpPost()]
-        public async Task<ActionResult> post(Author author)
+        public async Task<ActionResult> post(authorCreationDto author)
         {
             var exits = await context.Authors.AnyAsync(x => x.name == author.name);
             if (exits)
@@ -69,29 +71,31 @@ namespace prueba.Controllers
                 logger.LogError($"El autor {author.name} ya existe");
                 return BadRequest($"{author.name} ya existe");
             }
-            context.Add(author);
+            Author newAuthor = mapper.Map<Author>(author);
+            context.Add(newAuthor);
             await context.SaveChangesAsync();
-            logger.LogInformation($"Se creo el autor {author.name} con id {author.id}");
-            return Ok();
+            authorDto newAuthorDto = mapper.Map<authorDto>(newAuthor);
+            // logger.LogInformation($"Se creo el autor {author.name} con id {author.id}");
+            return CreatedAtRoute("getAuthorId", new { id = newAuthor.id }, newAuthorDto);
         }
 
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> put(Author author, int id)
+        public async Task<ActionResult> put(authorCreationDto author, int id)
         {
-            if (author.id != id)
-            {
-                return BadRequest("Id no coincide");
-            }
-            var exits = await context.Authors.AnyAsync(x => x.id == id);
+
+            Boolean exits = await context.Authors.AnyAsync(x => x.id == id);
             if (!exits)
             {
                 return NotFound();
             }
-            context.Update(author);
+            Author updAuthor = mapper.Map<Author>(author);
+            updAuthor.id = id;
+            context.Update(updAuthor);
             await context.SaveChangesAsync();
-            return Ok();
+            return NoContent();
         }
+
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> delete(int id)
         {

@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace prueba.services
+namespace prueba.DTOS
 {
-    public class getRandomNum
+    public class CommentsCreationDto
     {
-        public int num = new Random().Next(1, 100);
-
-
+        public string content { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240123024340_RelacioneComentariosConUsuarios")]
+    partial class RelacioneComentariosConUsuarios
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,8 +299,6 @@ namespace prueba.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.HasIndex("userId");
-
                     b.ToTable("comments");
                 });
 
@@ -379,13 +380,7 @@ namespace prueba.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "user")
-                        .WithMany()
-                        .HasForeignKey("userId");
-
                     b.Navigation("book");
-
-                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("prueba.entities.Author", b =>

@@ -4,18 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace prueba.entities
+namespace prueba.DTOS
 {
-    public class Book
+    public class bookCreationDto
     {
-        public int id { get; set; }
         [Required]
         [StringLength(30)]
         public string title { get; set; }
-
         public DateTime? dateCreation { get; set; }
-        public List<Comments> comments { get; set; }
-        public List<Author_Book> Author_Book { get; set; }
-
+        public List<int> authorIds { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240123024513_RelacioneComentariosConUsuariosSETGET")]
+    partial class RelacioneComentariosConUsuariosSETGET
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
