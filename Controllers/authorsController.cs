@@ -53,8 +53,8 @@ namespace prueba.Controllers
             return mapper.Map<authorDto>(author);
         }
 
-        [HttpGet("{name}")]
-        public async Task<ActionResult<List<authorDto>>> getByName([FromRoute] string name)
+        [HttpGet("byName")]
+        public async Task<ActionResult<List<authorDto>>> getByName([FromQuery] string name)
         {
             var authors = await context.Authors.Where(authorDB => authorDB.name.Contains(name)).ToListAsync();
             if (authors == null)
@@ -69,7 +69,7 @@ namespace prueba.Controllers
             if (exits)
             {
                 logger.LogError($"El autor {author.name} ya existe");
-                return BadRequest($"{author.name} ya existe");
+                return BadRequest(new errorMessageDto($"{author.name} ya existe"));
             }
             Author newAuthor = mapper.Map<Author>(author);
             context.Add(newAuthor);

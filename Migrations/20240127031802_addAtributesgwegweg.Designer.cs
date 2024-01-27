@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240127031802_addAtributesgwegweg")]
+    partial class addAtributesgwegweg
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -325,7 +328,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Category");
+                    b.ToTable("category");
                 });
 
             modelBuilder.Entity("prueba.entities.Comments", b =>
@@ -367,7 +370,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Country");
+                    b.ToTable("country");
                 });
 
             modelBuilder.Entity("prueba.entities.Language", b =>
@@ -383,7 +386,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Language");
+                    b.ToTable("language");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

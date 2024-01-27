@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240127020836_AgregueNuevosCampos")]
+    partial class AgregueNuevosCampos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,8 +235,8 @@ namespace prueba.Migrations
                     b.Property<DateTime>("birthDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("countryId")
-                        .HasColumnType("integer");
+                    b.Property<string>("country")
+                        .HasColumnType("text");
 
                     b.Property<string>("name")
                         .IsRequired()
@@ -241,8 +244,6 @@ namespace prueba.Migrations
                         .HasColumnType("character varying(120)");
 
                     b.HasKey("id");
-
-                    b.HasIndex("countryId");
 
                     b.ToTable("Authors");
                 });
@@ -279,9 +280,6 @@ namespace prueba.Migrations
                     b.Property<string>("description")
                         .HasColumnType("text");
 
-                    b.Property<int>("languageId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("numPages")
                         .HasColumnType("integer");
 
@@ -291,8 +289,6 @@ namespace prueba.Migrations
                         .HasColumnType("character varying(30)");
 
                     b.HasKey("id");
-
-                    b.HasIndex("languageId");
 
                     b.ToTable("Books");
                 });
@@ -325,7 +321,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Category");
+                    b.ToTable("category");
                 });
 
             modelBuilder.Entity("prueba.entities.Comments", b =>
@@ -352,38 +348,6 @@ namespace prueba.Migrations
                     b.HasIndex("userId");
 
                     b.ToTable("comments");
-                });
-
-            modelBuilder.Entity("prueba.entities.Country", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<string>("name")
-                        .HasColumnType("text");
-
-                    b.HasKey("id");
-
-                    b.ToTable("Country");
-                });
-
-            modelBuilder.Entity("prueba.entities.Language", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<string>("name")
-                        .HasColumnType("text");
-
-                    b.HasKey("id");
-
-                    b.ToTable("Language");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -437,17 +401,6 @@ namespace prueba.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("prueba.entities.Author", b =>
-                {
-                    b.HasOne("prueba.entities.Country", "country")
-                        .WithMany()
-                        .HasForeignKey("countryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("country");
-                });
-
             modelBuilder.Entity("prueba.entities.Author_Book", b =>
                 {
                     b.HasOne("prueba.entities.Author", "Author")
@@ -465,17 +418,6 @@ namespace prueba.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("Book");
-                });
-
-            modelBuilder.Entity("prueba.entities.Book", b =>
-                {
-                    b.HasOne("prueba.entities.Language", "language")
-                        .WithMany()
-                        .HasForeignKey("languageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("language");
                 });
 
             modelBuilder.Entity("prueba.entities.Book_Category", b =>

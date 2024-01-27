@@ -54,7 +54,7 @@ namespace prueba.Controllers
             if (result.Succeeded)
                 return await createToken(credentials);
             else
-                return BadRequest("Login Incorrecto");
+                return BadRequest(new errorMessageDto("Credenciales invalidas"));
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

@@ -39,8 +39,11 @@ namespace prueba.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> put(int id, bookCreationDto book)
         {
-            if (!await validListId(book))
-                return BadRequest("No existe alguno de los autores");
+            if (!await validListAuthorId(book))
+                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
+            if (!await validListCategoryId(book))
+                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
+
 
             Book bookUpd = await context.Books
                 .Include(bookDB => bookDB.Author_Book)
@@ -71,8 +74,11 @@ namespace prueba.Controllers
         [HttpPost()]
         public async Task<ActionResult> post(bookCreationDto book)
         {
-            if (!await validListId(book))
-                return BadRequest("No existe alguno de los autores");
+            if (!await validListAuthorId(book))
+                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
+            if (!await validListCategoryId(book))
+                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
+
             // List<Book> books=mapper.Map<Book>(book);
             Book bookEnd = mapper.Map<Book>(book);
             order(bookEnd);
@@ -82,13 +88,21 @@ namespace prueba.Controllers
             return CreatedAtRoute("getBookById", new { id = bookEnd.id }, result);
         }
 
-        private async Task<Boolean> validListId(bookCreationDto book)
+        private async Task<Boolean> validListAuthorId(bookCreationDto book)
         {
             List<int> authorsIds = await context.Authors
                 .Where(authorDb => book.authorIds
                     .Contains(authorDb.id))
                 .Select(authorDB => authorDB.id).ToListAsync();
             return authorsIds.Count == book.authorIds.Count;
+        }
+        private async Task<Boolean> validListCategoryId(bookCreationDto book)
+        {
+            List<int> authorsIds = await context.Category
+                .Where(categoryDb => book.categoriesId
+                    .Contains(categoryDb.id))
+                .Select(categoryDb => categoryDb.id).ToListAsync();
+            return authorsIds.Count == book.categoriesId.Count;
         }
         private void order(Book book)
         {

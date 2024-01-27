@@ -20,11 +20,17 @@ namespace prueba
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Author_Book>().HasKey(al => new { al.AuthorId, al.BookId });
+            modelBuilder.Entity<Book_Category>().HasKey(al => new { al.categoryId, al.bookId });
+
         }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Comments> comments { get; set; }
         public DbSet<Author_Book> Author_Book { get; set; }
+        public DbSet<Book_Category> Book_Category { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<Language> Language { get; set; }
+        public DbSet<Country> Country { get; set; }
 
     }
 }

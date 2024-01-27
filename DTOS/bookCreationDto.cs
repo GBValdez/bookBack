@@ -13,5 +13,6 @@ namespace prueba.DTOS
         public string title { get; set; }
         public DateTime? dateCreation { get; set; }
         public List<int> authorIds { get; set; }
+        public List<int> categoriesId { get; set; }
     }
 }

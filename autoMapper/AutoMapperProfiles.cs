@@ -17,7 +17,8 @@ namespace prueba.autoMapper
                 .ForMember(author => author.books, options => options.MapFrom(mapBooksByAuthor));
 
             CreateMap<bookCreationDto, Book>()
-                .ForMember(book => book.Author_Book, options => options.MapFrom(MapAuthorsBook));
+                .ForMember(book => book.Author_Book, options => options.MapFrom(MapAuthorsBook))
+                .ForMember(book => book.Book_Category, options => options.MapFrom(MapAuthorsBookCategory));
             CreateMap<Book, bookDto>()
                 .ForMember(book => book.authors, options => options.MapFrom(mapAuthorsDtoBook));
 
@@ -65,11 +66,18 @@ namespace prueba.autoMapper
         private List<Author_Book> MapAuthorsBook(bookCreationDto bookCreation, Book book)
         {
             var results = new List<Author_Book>();
-            // if (bookCreation.authorIds == null)
-            //     return results;
             foreach (int item in bookCreation.authorIds)
             {
                 results.Add(new Author_Book { AuthorId = item });
+            }
+            return results;
+        }
+        private List<Book_Category> MapAuthorsBookCategory(bookCreationDto bookCreation, Book book)
+        {
+            List<Book_Category> results = new List<Book_Category>();
+            foreach (int item in bookCreation.categoriesId)
+            {
+                results.Add(new Book_Category { categoryId = item });
             }
             return results;
         }

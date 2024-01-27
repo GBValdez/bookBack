@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240127034029_BorreLaRelacion")]
+    partial class BorreLaRelacion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,17 +235,12 @@ namespace prueba.Migrations
                     b.Property<DateTime>("birthDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("countryId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
                     b.HasKey("id");
-
-                    b.HasIndex("countryId");
 
                     b.ToTable("Authors");
                 });
@@ -325,7 +323,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Category");
+                    b.ToTable("category");
                 });
 
             modelBuilder.Entity("prueba.entities.Comments", b =>
@@ -367,7 +365,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Country");
+                    b.ToTable("country");
                 });
 
             modelBuilder.Entity("prueba.entities.Language", b =>
@@ -383,7 +381,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("Language");
+                    b.ToTable("language");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -435,17 +433,6 @@ namespace prueba.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("prueba.entities.Author", b =>
-                {
-                    b.HasOne("prueba.entities.Country", "country")
-                        .WithMany()
-                        .HasForeignKey("countryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("country");
                 });
 
             modelBuilder.Entity("prueba.entities.Author_Book", b =>
