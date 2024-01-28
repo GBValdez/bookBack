@@ -28,6 +28,9 @@ namespace prueba.autoMapper
             CreateMap<bookPatchDto, Book>().ReverseMap();
             CreateMap<Comments, CommentsDto>();
 
+            CreateMap<catalogueCreationDto, Country>();
+            CreateMap<Country, catalogueDto>();
+
         }
 
         public List<bookDto> mapBooksByAuthor(Author author, authorDto authorDto)

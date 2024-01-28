@@ -36,9 +36,13 @@ namespace prueba.Controllers
 
 
         [HttpGet()]
-        public async Task<ActionResult<List<Author>>> get()
+        public async Task<ActionResult<List<authorDto>>> get()
         {
-            return await context.Authors.ToListAsync();
+            List<Author> authors = await context.Authors.Include(authorDb => authorDb.country)
+            .Select(authorDB => new Author { id = authorDB.id, name = authorDB.name, birthDate = authorDB.birthDate, country = authorDB.country })
+            .ToListAsync();
+            List<authorDto> authorsDto = mapper.Map<List<authorDto>>(authors);
+            return authorsDto;
         }
 
         //Con poner el signo de interrogacion al final del parametro lo hacemos opcional y puedes setear un valor por defecto
@@ -65,11 +69,17 @@ namespace prueba.Controllers
         [HttpPost()]
         public async Task<ActionResult> post(authorCreationDto author)
         {
-            var exits = await context.Authors.AnyAsync(x => x.name == author.name);
+            Boolean exits = await context.Authors.AnyAsync(x => x.name == author.name);
             if (exits)
             {
                 logger.LogError($"El autor {author.name} ya existe");
                 return BadRequest(new errorMessageDto($"{author.name} ya existe"));
+            }
+            Boolean existCountry = await context.Country.AnyAsync(countryDB => countryDB.id == author.countryId);
+            if (!existCountry)
+            {
+                logger.LogError($"El pais con id{author.countryId} no existe");
+                return BadRequest(new errorMessageDto($"El pais con id{author.countryId} no existe"));
             }
             Author newAuthor = mapper.Map<Author>(author);
             context.Add(newAuthor);

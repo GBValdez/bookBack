@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace prueba.Migrations
 {
     /// <inheritdoc />
-    public partial class userAndRoles : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -49,6 +49,45 @@ namespace prueba.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Category",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Category", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Country",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Country", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Language",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Language", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,6 +196,126 @@ namespace prueba.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Authors",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    countryId = table.Column<int>(type: "integer", nullable: false),
+                    biography = table.Column<string>(type: "text", nullable: true),
+                    birthDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Authors", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Authors_Country_countryId",
+                        column: x => x.countryId,
+                        principalTable: "Country",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Books",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    title = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    dateCreation = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    numPages = table.Column<int>(type: "integer", nullable: false),
+                    languageId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Books", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Books_Language_languageId",
+                        column: x => x.languageId,
+                        principalTable: "Language",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Author_Book",
+                columns: table => new
+                {
+                    AuthorId = table.Column<int>(type: "integer", nullable: false),
+                    BookId = table.Column<int>(type: "integer", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Author_Book", x => new { x.AuthorId, x.BookId });
+                    table.ForeignKey(
+                        name: "FK_Author_Book_Authors_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Authors",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Author_Book_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Book_Category",
+                columns: table => new
+                {
+                    bookId = table.Column<int>(type: "integer", nullable: false),
+                    categoryId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Book_Category", x => new { x.categoryId, x.bookId });
+                    table.ForeignKey(
+                        name: "FK_Book_Category_Books_bookId",
+                        column: x => x.bookId,
+                        principalTable: "Books",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Book_Category_Category_categoryId",
+                        column: x => x.categoryId,
+                        principalTable: "Category",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "comments",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    content = table.Column<string>(type: "text", nullable: true),
+                    BookId = table.Column<int>(type: "integer", nullable: false),
+                    userId = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_comments", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_comments_AspNetUsers_userId",
+                        column: x => x.userId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_comments_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -193,6 +352,36 @@ namespace prueba.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Author_Book_BookId",
+                table: "Author_Book",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Authors_countryId",
+                table: "Authors",
+                column: "countryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Book_Category_bookId",
+                table: "Book_Category",
+                column: "bookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_languageId",
+                table: "Books",
+                column: "languageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comments_BookId",
+                table: "comments",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_comments_userId",
+                table: "comments",
+                column: "userId");
         }
 
         /// <inheritdoc />
@@ -214,10 +403,34 @@ namespace prueba.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Author_Book");
+
+            migrationBuilder.DropTable(
+                name: "Book_Category");
+
+            migrationBuilder.DropTable(
+                name: "comments");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Authors");
+
+            migrationBuilder.DropTable(
+                name: "Category");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Books");
+
+            migrationBuilder.DropTable(
+                name: "Country");
+
+            migrationBuilder.DropTable(
+                name: "Language");
         }
     }
 }

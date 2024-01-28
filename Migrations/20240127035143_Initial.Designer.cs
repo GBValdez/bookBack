@@ -12,8 +12,8 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    [Migration("20240127031508_addAtributes")]
-    partial class addAtributes
+    [Migration("20240127035143_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -328,7 +328,7 @@ namespace prueba.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("category");
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("prueba.entities.Comments", b =>
