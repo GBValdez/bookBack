@@ -9,7 +9,7 @@ using prueba.validators;
 namespace prueba.entities
 {
     //Al heredar de IValidatableObject podemos hacer validaciones desde el modelo
-    public class Author
+    public class Author : CommonsModel
     {
         public int id { get; set; }
 

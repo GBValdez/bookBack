@@ -15,7 +15,7 @@ namespace prueba.validators
 
             string firstLetter = value.ToString()[0].ToString();
             if (firstLetter != firstLetter.ToUpper())
-                return new ValidationResult("La primera letra debe ser mayúscula");
+                return new ValidationResult($"El campo {validationContext.DisplayName} debe comenzar con una letra mayúscula");
             return ValidationResult.Success;
         }
     }

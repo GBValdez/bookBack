@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using prueba.DTOS;
 using prueba.entities;
 using prueba.services;
@@ -36,20 +37,44 @@ namespace prueba.Controllers
 
 
         [HttpGet()]
-        public async Task<ActionResult<List<authorDto>>> get()
+        public async Task<ActionResult<resPag<authorDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber)
         {
-            List<Author> authors = await context.Authors.Include(authorDb => authorDb.country)
+            List<Author> authors = await context.Authors
+            .Where(authorDb => authorDb.deleteAt == null)
+            .Include(authorDb => authorDb.country)
             .Select(authorDB => new Author { id = authorDB.id, name = authorDB.name, birthDate = authorDB.birthDate, country = authorDB.country })
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
             List<authorDto> authorsDto = mapper.Map<List<authorDto>>(authors);
-            return authorsDto;
+            int total = await context.Authors
+                .Where(authorDb => authorDb.deleteAt == null)
+                .CountAsync();
+
+            return new resPag<authorDto>
+            {
+                items = authorsDto,
+                total = total,
+                index = pageNumber
+
+            };
         }
 
         //Con poner el signo de interrogacion al final del parametro lo hacemos opcional y puedes setear un valor por defecto
         [HttpGet("{id:int}", Name = "getAuthorId")]
-        public async Task<ActionResult<authorDto>> get(int id)
+        public async Task<ActionResult<authorDto>> getOne(int id, [FromQuery] Boolean? all = false)
         {
-            Author author = await context.Authors.Include(author => author.Author_Book).ThenInclude(authorBook => authorBook.Book).FirstOrDefaultAsync(authorDB => authorDB.id == id);
+            IIncludableQueryable<Author, Country> authorQuery = context.Authors.Include(authorDb => authorDb.country);
+            Author author = null;
+            if (all.Value)
+                author = await authorQuery
+                    .Include(author => author.Author_Book)
+                    .ThenInclude(authorBook => authorBook.Book)
+                    .FirstOrDefaultAsync(authorDB => authorDB.id == id && authorDB.deleteAt == null);
+            else
+                author = await authorQuery
+                    .FirstOrDefaultAsync(authorDB => authorDB.id == id && authorDB.deleteAt == null);
+
             if (author == null)
             {
                 return NotFound();
@@ -94,7 +119,8 @@ namespace prueba.Controllers
         public async Task<ActionResult> put(authorCreationDto author, int id)
         {
 
-            Boolean exits = await context.Authors.AnyAsync(x => x.id == id);
+            Boolean exits = await context.Authors
+                .AnyAsync(authorDb => authorDb.id == id && authorDb.deleteAt == null);
             if (!exits)
             {
                 return NotFound();
@@ -109,12 +135,13 @@ namespace prueba.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> delete(int id)
         {
-            var exits = await context.Authors.AnyAsync(x => x.id == id);
-            if (!exits)
+            Author exits = await context.Authors
+                .FirstOrDefaultAsync(authorDb => authorDb.id == id && authorDb.deleteAt == null);
+            if (exits == null)
             {
                 return NotFound();
             }
-            context.Remove(new Author { id = id });
+            exits.deleteAt = DateTime.Now.ToUniversalTime();
             await context.SaveChangesAsync();
             return Ok();
         }

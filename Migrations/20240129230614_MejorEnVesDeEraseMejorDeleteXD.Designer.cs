@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240129230614_MejorEnVesDeEraseMejorDeleteXD")]
+    partial class MejorEnVesDeEraseMejorDeleteXD
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,25 +240,14 @@ namespace prueba.Migrations
                     b.Property<int>("countryId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("deleteAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
-                    b.Property<DateTime>("updateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("userUpdateId")
-                        .HasColumnType("text");
-
                     b.HasKey("id");
 
                     b.HasIndex("countryId");
-
-                    b.HasIndex("userUpdateId");
 
                     b.ToTable("Authors");
                 });
@@ -513,13 +505,7 @@ namespace prueba.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userUpdate")
-                        .WithMany()
-                        .HasForeignKey("userUpdateId");
-
                     b.Navigation("country");
-
-                    b.Navigation("userUpdate");
                 });
 
             modelBuilder.Entity("prueba.entities.Author_Book", b =>

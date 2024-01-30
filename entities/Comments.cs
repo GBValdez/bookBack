@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace prueba.entities
 {
-    public class Comments
+    public class Comments : CommonsModel
     {
         public int id { get; set; }
         public string content { get; set; }

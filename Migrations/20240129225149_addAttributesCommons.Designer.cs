@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240129225149_addAttributesCommons")]
+    partial class addAttributesCommons
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,25 +240,14 @@ namespace prueba.Migrations
                     b.Property<int>("countryId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("deleteAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
-                    b.Property<DateTime>("updateAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("userUpdateId")
-                        .HasColumnType("text");
-
                     b.HasKey("id");
 
                     b.HasIndex("countryId");
-
-                    b.HasIndex("userUpdateId");
 
                     b.ToTable("Authors");
                 });
@@ -289,11 +281,11 @@ namespace prueba.Migrations
                     b.Property<DateTime?>("dateCreation")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("deleteAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("description")
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("eraseAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("languageId")
                         .HasColumnType("integer");
@@ -309,14 +301,19 @@ namespace prueba.Migrations
                     b.Property<DateTime>("updateAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("userUpdateId")
+                    b.Property<string>("userDeleteId1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("userUpdateId1")
                         .HasColumnType("text");
 
                     b.HasKey("id");
 
                     b.HasIndex("languageId");
 
-                    b.HasIndex("userUpdateId");
+                    b.HasIndex("userDeleteId1");
+
+                    b.HasIndex("userUpdateId1");
 
                     b.ToTable("Books");
                 });
@@ -344,7 +341,7 @@ namespace prueba.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
 
-                    b.Property<DateTime?>("deleteAt")
+                    b.Property<DateTime>("eraseAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("name")
@@ -353,12 +350,17 @@ namespace prueba.Migrations
                     b.Property<DateTime>("updateAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("userUpdateId")
+                    b.Property<string>("userDeleteId1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("userUpdateId1")
                         .HasColumnType("text");
 
                     b.HasKey("id");
 
-                    b.HasIndex("userUpdateId");
+                    b.HasIndex("userDeleteId1");
+
+                    b.HasIndex("userUpdateId1");
 
                     b.ToTable("Category");
                 });
@@ -377,25 +379,30 @@ namespace prueba.Migrations
                     b.Property<string>("content")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("deleteAt")
+                    b.Property<DateTime>("eraseAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("updateAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("userDeleteId1")
+                        .HasColumnType("text");
+
                     b.Property<string>("userId")
                         .HasColumnType("text");
 
-                    b.Property<string>("userUpdateId")
+                    b.Property<string>("userUpdateId1")
                         .HasColumnType("text");
 
                     b.HasKey("id");
 
                     b.HasIndex("BookId");
 
+                    b.HasIndex("userDeleteId1");
+
                     b.HasIndex("userId");
 
-                    b.HasIndex("userUpdateId");
+                    b.HasIndex("userUpdateId1");
 
                     b.ToTable("comments");
                 });
@@ -408,7 +415,7 @@ namespace prueba.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
 
-                    b.Property<DateTime?>("deleteAt")
+                    b.Property<DateTime>("eraseAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("name")
@@ -417,12 +424,17 @@ namespace prueba.Migrations
                     b.Property<DateTime>("updateAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("userUpdateId")
+                    b.Property<string>("userDeleteId1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("userUpdateId1")
                         .HasColumnType("text");
 
                     b.HasKey("id");
 
-                    b.HasIndex("userUpdateId");
+                    b.HasIndex("userDeleteId1");
+
+                    b.HasIndex("userUpdateId1");
 
                     b.ToTable("Country");
                 });
@@ -435,7 +447,7 @@ namespace prueba.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
 
-                    b.Property<DateTime?>("deleteAt")
+                    b.Property<DateTime>("eraseAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("name")
@@ -444,12 +456,17 @@ namespace prueba.Migrations
                     b.Property<DateTime>("updateAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("userUpdateId")
+                    b.Property<string>("userDeleteId1")
+                        .HasColumnType("text");
+
+                    b.Property<string>("userUpdateId1")
                         .HasColumnType("text");
 
                     b.HasKey("id");
 
-                    b.HasIndex("userUpdateId");
+                    b.HasIndex("userDeleteId1");
+
+                    b.HasIndex("userUpdateId1");
 
                     b.ToTable("Language");
                 });
@@ -513,13 +530,7 @@ namespace prueba.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userUpdate")
-                        .WithMany()
-                        .HasForeignKey("userUpdateId");
-
                     b.Navigation("country");
-
-                    b.Navigation("userUpdate");
                 });
 
             modelBuilder.Entity("prueba.entities.Author_Book", b =>
@@ -549,11 +560,17 @@ namespace prueba.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userDelete")
+                        .WithMany()
+                        .HasForeignKey("userDeleteId1");
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userUpdate")
                         .WithMany()
-                        .HasForeignKey("userUpdateId");
+                        .HasForeignKey("userUpdateId1");
 
                     b.Navigation("language");
+
+                    b.Navigation("userDelete");
 
                     b.Navigation("userUpdate");
                 });
@@ -579,9 +596,15 @@ namespace prueba.Migrations
 
             modelBuilder.Entity("prueba.entities.Category", b =>
                 {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userDelete")
+                        .WithMany()
+                        .HasForeignKey("userDeleteId1");
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userUpdate")
                         .WithMany()
-                        .HasForeignKey("userUpdateId");
+                        .HasForeignKey("userUpdateId1");
+
+                    b.Navigation("userDelete");
 
                     b.Navigation("userUpdate");
                 });
@@ -594,35 +617,53 @@ namespace prueba.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userDelete")
+                        .WithMany()
+                        .HasForeignKey("userDeleteId1");
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "user")
                         .WithMany()
                         .HasForeignKey("userId");
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userUpdate")
                         .WithMany()
-                        .HasForeignKey("userUpdateId");
+                        .HasForeignKey("userUpdateId1");
 
                     b.Navigation("book");
 
                     b.Navigation("user");
+
+                    b.Navigation("userDelete");
 
                     b.Navigation("userUpdate");
                 });
 
             modelBuilder.Entity("prueba.entities.Country", b =>
                 {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userDelete")
+                        .WithMany()
+                        .HasForeignKey("userDeleteId1");
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userUpdate")
                         .WithMany()
-                        .HasForeignKey("userUpdateId");
+                        .HasForeignKey("userUpdateId1");
+
+                    b.Navigation("userDelete");
 
                     b.Navigation("userUpdate");
                 });
 
             modelBuilder.Entity("prueba.entities.Language", b =>
                 {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userDelete")
+                        .WithMany()
+                        .HasForeignKey("userDeleteId1");
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "userUpdate")
                         .WithMany()
-                        .HasForeignKey("userUpdateId");
+                        .HasForeignKey("userUpdateId1");
+
+                    b.Navigation("userDelete");
 
                     b.Navigation("userUpdate");
                 });
