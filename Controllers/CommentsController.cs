@@ -34,8 +34,8 @@ namespace prueba.Controllers
         [HttpPost]
         public async Task<ActionResult> post(int idBook, CommentsCreationDto comment)
         {
-            Claim email = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
-            IdentityUser thisUser = await userManager.FindByEmailAsync(email.Value);
+            string idUser = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 
 
             Book exits = await context.Books.FirstOrDefaultAsync(bookDB => bookDB.id == idBook);
@@ -44,7 +44,7 @@ namespace prueba.Controllers
 
             Comments newComment = mapper.Map<Comments>(comment);
             newComment.BookId = idBook;
-            newComment.userId = thisUser.Id;
+            newComment.userId = idUser;
             context.Add(newComment);
             await context.SaveChangesAsync();
             CommentsDto results = mapper.Map<CommentsDto>(newComment);

@@ -98,6 +98,7 @@ namespace prueba.Controllers
             {
                 claimUser.Add(new Claim(ClaimTypes.Role, rol));
             }
+            claimUser.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
 
             // Estos son los parametros que guardara el webToken
             List<Claim> claims = new List<Claim>(){

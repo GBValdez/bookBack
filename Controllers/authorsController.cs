@@ -33,12 +33,19 @@ namespace prueba.Controllers
             this.logger = logger;
             this.mapper = mapper;
 
+
         }
 
 
         [HttpGet()]
         public async Task<ActionResult<resPag<authorDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber)
         {
+            int total = await context.Authors
+                .Where(authorDb => authorDb.deleteAt == null)
+                .CountAsync();
+            double totalDB = total;
+            if (pageNumber > Math.Ceiling(totalDB / pageSize))
+                return BadRequest(new errorMessageDto("El indice de la pagina es mayor que el numero de paginas total"));
             List<Author> authors = await context.Authors
             .Where(authorDb => authorDb.deleteAt == null)
             .Include(authorDb => authorDb.country)
@@ -47,10 +54,6 @@ namespace prueba.Controllers
             .Take(pageSize)
             .ToListAsync();
             List<authorDto> authorsDto = mapper.Map<List<authorDto>>(authors);
-            int total = await context.Authors
-                .Where(authorDb => authorDb.deleteAt == null)
-                .CountAsync();
-
             return new resPag<authorDto>
             {
                 items = authorsDto,
@@ -127,6 +130,8 @@ namespace prueba.Controllers
             }
             Author updAuthor = mapper.Map<Author>(author);
             updAuthor.id = id;
+            // updAuthor.updateAt = DateTime.Now.ToUniversalTime();
+            // updAuthor.userUpdateId = userSvc.user.Id;
             context.Update(updAuthor);
             await context.SaveChangesAsync();
             return NoContent();

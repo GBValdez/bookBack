@@ -34,7 +34,17 @@ namespace prueba
 
             );
 
-            services.AddDbContext<AplicationDBContex>(options => options.UseNpgsql(Configuration.GetConnectionString("PostSqlConnection")));
+            services.AddHttpContextAccessor();
+            services.AddScoped<interceptorDb>();
+
+            services.AddDbContext<AplicationDBContex>((serviceProvider, options) =>
+                {
+                    options.UseNpgsql(Configuration.GetConnectionString("PostSqlConnection"))
+                    .AddInterceptors(serviceProvider.GetRequiredService<interceptorDb>());
+                }
+                );
+
+
             services.AddTransient<hashService>();
 
             services.AddCors(options =>
@@ -101,30 +111,6 @@ namespace prueba
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //Al usar run solo se ejecuta un middleware
-            // app.Run(async context =>
-            // {
-            //     await context.Response.WriteAsync("Hello from 2nd delegate.");
-            // });
-
-            //Al usar map , decimos en que rutas se van a ejecutar el middleware
-            // app.Map("/ruta", app =>
-            // {
-            //     app.Run(async context =>
-            //     {
-            //         await context.Response.WriteAsync("Hello from 2nd delegate.");
-            //     });
-
-            // });
-            // app.Use(async (context, next) =>
-            // {
-            //     logger.LogInformation("Middelware 1");
-            //     await next();
-            //     logger.LogInformation("Middelware 1");
-            // });
-            // Configure the HTTP request pipeline.
-            //corremos nuestro middleware
-
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
