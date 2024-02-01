@@ -33,7 +33,9 @@ namespace prueba.Controllers
         [HttpGet()]
         public async Task<ActionResult<List<Book>>> get()
         {
-            return await context.Books.Include(bookDB => bookDB.comments).ToListAsync();
+            return await context.Books
+                .Include(bookDB => bookDB.comments)
+                .ToListAsync();
         }
 
         [HttpPut("{id}")]
@@ -47,6 +49,7 @@ namespace prueba.Controllers
 
             Book bookUpd = await context.Books
                 .Include(bookDB => bookDB.Author_Book)
+                .Include(bookBb => bookBb.Book_Category)
                 .FirstOrDefaultAsync(bookDb => bookDb.id == id);
             if (bookUpd == null)
                 return NotFound();
