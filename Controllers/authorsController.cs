@@ -67,16 +67,12 @@ namespace prueba.Controllers
         [HttpGet("{id:int}", Name = "getAuthorId")]
         public async Task<ActionResult<authorDto>> getOne(int id, [FromQuery] Boolean? all = false)
         {
-            IIncludableQueryable<Author, Country> authorQuery = context.Authors.Include(authorDb => authorDb.country);
-            Author author = null;
+            var authorQuery = context.Authors.Include(authorDb => authorDb.country);
             if (all.Value)
-                author = await authorQuery
-                    .Include(author => author.Author_Book)
-                    .ThenInclude(authorBook => authorBook.Book)
-                    .FirstOrDefaultAsync(authorDB => authorDB.id == id && authorDB.deleteAt == null);
-            else
-                author = await authorQuery
-                    .FirstOrDefaultAsync(authorDB => authorDB.id == id && authorDB.deleteAt == null);
+                authorQuery
+                   .Include(author => author.Author_Book)
+                   .ThenInclude(authorBook => authorBook.Book);
+            Author author = await authorQuery.FirstOrDefaultAsync(authorDB => authorDB.id == id && authorDB.deleteAt == null);
 
             if (author == null)
             {

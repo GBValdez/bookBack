@@ -20,7 +20,8 @@ namespace prueba.autoMapper
                 .ForMember(book => book.Author_Book, options => options.MapFrom(MapAuthorsBook))
                 .ForMember(book => book.Book_Category, options => options.MapFrom(MapAuthorsBookCategory));
             CreateMap<Book, bookDto>()
-                .ForMember(book => book.authors, options => options.MapFrom(mapAuthorsDtoBook));
+                .ForMember(book => book.authors, options => options.MapFrom(mapAuthorsDtoBook))
+                .ForMember(book => book.categories, options => options.MapFrom(mapCategoryDtoBook));
 
             CreateMap<CommentsCreationDto, Comments>();
             CreateMap<Comments, CommentsDto>();
@@ -34,6 +35,8 @@ namespace prueba.autoMapper
             CreateMap<catalogueCreationDto, Language>();
             CreateMap<Language, catalogueDto>();
 
+            CreateMap<catalogueCreationDto, Category>();
+            CreateMap<Category, catalogueDto>();
         }
 
         public List<bookDto> mapBooksByAuthor(Author author, authorDto authorDto)
@@ -69,6 +72,22 @@ namespace prueba.autoMapper
             return results;
         }
 
+        public List<catalogueDto> mapCategoryDtoBook(Book book, bookDto bookDtoNew)
+        {
+            List<catalogueDto> results = new List<catalogueDto>();
+            if (book.Book_Category == null)
+                return results;
+            foreach (Book_Category item in book.Book_Category)
+            {
+                if (item.category != null)
+                    results.Add(new catalogueDto()
+                    {
+                        id = item.categoryId,
+                        name = item.category.name
+                    });
+            }
+            return results;
+        }
         private List<Author_Book> MapAuthorsBook(bookCreationDto bookCreation, Book book)
         {
             var results = new List<Author_Book>();

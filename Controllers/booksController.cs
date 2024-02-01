@@ -16,7 +16,7 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("books")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
     public class booksController : ControllerBase
     {
@@ -58,13 +58,18 @@ namespace prueba.Controllers
         }
 
         [HttpGet("{id:int}", Name = "getBookById"),]
-        [AllowAnonymous]
-        public async Task<ActionResult<bookDto>> getById(int id)
+        public async Task<ActionResult<bookDto>> getById(int id, [FromQuery] Boolean? all = false)
         {
-            Book bookOnly = await context.Books
+            var bookQuery = context.Books
                 .Include(bookDB => bookDB.Author_Book)
                 .ThenInclude(bookAuthorDB => bookAuthorDB.Author)
-                .FirstOrDefaultAsync(book => book.id == id);
+                .Include(bookDb => bookDb.language)
+                .Include(bookDb => bookDb.Book_Category)
+                .ThenInclude(bookCategoryDb => bookCategoryDb.category);
+
+            if (all.Value)
+                bookQuery.Include(bookDb => bookDb.comments);
+            Book bookOnly = await bookQuery.FirstOrDefaultAsync(bookDb => bookDb.id == id && bookDb.deleteAt == null);
             if (bookOnly == null)
                 return NotFound();
             bookOnly.Author_Book = bookOnly.Author_Book.OrderBy(x => x.order).ToList();

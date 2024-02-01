@@ -10,11 +10,16 @@ namespace prueba.entities
     {
         public int id { get; set; }
         [Required]
-        [StringLength(30)]
+        [StringLength(50)]
         public string title { get; set; }
+        [Required]
+        [StringLength(250)]
         public string description { get; set; }
-        public DateTime? dateCreation { get; set; }
+        [Required]
+        public DateTime dateCreation { get; set; }
+        [Required]
         public int numPages { get; set; }
+        [Required]
         public int languageId { get; set; }
         public Language language { get; set; }
         public List<Comments> comments { get; set; }
