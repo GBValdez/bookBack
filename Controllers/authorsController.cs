@@ -107,7 +107,7 @@ namespace prueba.Controllers
             if (!existCountry)
             {
                 logger.LogError($"El pais con id{author.countryId} no existe");
-                return BadRequest(new errorMessageDto($"El pais con id{author.countryId} no existe"));
+                return BadRequest(new errorMessageDto($"El pais con id {author.countryId} no existe"));
             }
             Author newAuthor = mapper.Map<Author>(author);
             context.Add(newAuthor);

@@ -31,6 +31,9 @@ namespace prueba.autoMapper
             CreateMap<catalogueCreationDto, Country>();
             CreateMap<Country, catalogueDto>();
 
+            CreateMap<catalogueCreationDto, Language>();
+            CreateMap<Language, catalogueDto>();
+
         }
 
         public List<bookDto> mapBooksByAuthor(Author author, authorDto authorDto)

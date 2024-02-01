@@ -14,5 +14,8 @@ namespace prueba.DTOS
         public DateTime? dateCreation { get; set; }
         public List<int> authorIds { get; set; }
         public List<int> categoriesId { get; set; }
+        public int numPages { get; set; }
+        public int languageId { get; set; }
+
     }
 }
