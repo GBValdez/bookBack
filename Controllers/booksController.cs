@@ -16,37 +16,20 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("books")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class booksController : ControllerBase
+    public class BooksController : controllerCommons<Book, bookCreationDto, bookDto>
     {
-        private readonly AplicationDBContex context;
-        private readonly IMapper mapper;
-        private readonly ILogger<booksController> logger;
-        public booksController(AplicationDBContex context, IMapper mapper, ILogger<booksController> logger)
-        {
-            this.context = context;
-            this.mapper = mapper;
-            this.logger = logger;
-        }
-
-        [HttpGet()]
-        public async Task<ActionResult<List<Book>>> get()
-        {
-            return await context.Books
-                .Include(bookDB => bookDB.comments)
-                .ToListAsync();
-        }
+        public BooksController(AplicationDBContex context, IMapper mapper)
+        : base(context, mapper)
+        { }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> put(int id, bookCreationDto book)
+        public async Task<IActionResult> put(int id, bookCreationDto book)
         {
-            if (!await validListAuthorId(book))
-                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
-            if (!await validListCategoryId(book))
-                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
-
-
+            errorMessageDto error = await this.validListBook(book);
+            if (error != null)
+                return BadRequest(error);
             Book bookUpd = await context.Books
                 .Include(bookDB => bookDB.Author_Book)
                 .Include(bookBb => bookBb.Book_Category)
@@ -54,7 +37,6 @@ namespace prueba.Controllers
             if (bookUpd == null)
                 return NotFound();
             bookUpd = mapper.Map(book, bookUpd);
-            order(bookUpd);
 
             await context.SaveChangesAsync();
             return NoContent();
@@ -75,81 +57,46 @@ namespace prueba.Controllers
             Book bookOnly = await bookQuery.FirstOrDefaultAsync(bookDb => bookDb.id == id && bookDb.deleteAt == null);
             if (bookOnly == null)
                 return NotFound();
-            bookOnly.Author_Book = bookOnly.Author_Book.OrderBy(x => x.order).ToList();
+            // bookOnly.Author_Book = bookOnly.Author_Book.OrderBy(x => x.order).ToList();
             return mapper.Map<bookDto>(bookOnly);
         }
-
-        [HttpPost()]
-        public async Task<ActionResult> post(bookCreationDto book)
+        private async Task<Boolean> validListId<TValid>(List<int> ids)
+        where TValid : CommonsModel
         {
-            if (!await validListAuthorId(book))
-                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
-            if (!await validListCategoryId(book))
-                return BadRequest(new errorMessageDto("No existe alguno de los autores"));
-
-            // List<Book> books=mapper.Map<Book>(book);
-            Book bookEnd = mapper.Map<Book>(book);
-            order(bookEnd);
-            context.Add(bookEnd);
-            await context.SaveChangesAsync();
-            bookDto result = mapper.Map<bookDto>(bookEnd);
-            return CreatedAtRoute("getBookById", new { id = bookEnd.id }, result);
+            List<int> dbIds = await context.Set<TValid>()
+                .Where(db => ids
+                    .Contains(db.id))
+                .Select(db => db.id).ToListAsync();
+            return dbIds.Count == ids.Count;
         }
-
-        private async Task<Boolean> validListAuthorId(bookCreationDto book)
+        private async Task<errorMessageDto> validListBook(bookCreationDto book)
         {
-            List<int> authorsIds = await context.Authors
-                .Where(authorDb => book.authorIds
-                    .Contains(authorDb.id))
-                .Select(authorDB => authorDB.id).ToListAsync();
-            return authorsIds.Count == book.authorIds.Count;
+            if (!await validListId<Author>(book.authorIds))
+                return new errorMessageDto("No existe alguno de los autores");
+            if (!await validListId<Category>(book.categoriesId))
+                return new errorMessageDto("No existe alguno de los autores");
+            return null;
         }
-        private async Task<Boolean> validListCategoryId(bookCreationDto book)
+        protected override IQueryable<Book> modifyGet(IQueryable<Book> query)
         {
-            List<int> authorsIds = await context.Category
-                .Where(categoryDb => book.categoriesId
-                    .Contains(categoryDb.id))
-                .Select(categoryDb => categoryDb.id).ToListAsync();
-            return authorsIds.Count == book.categoriesId.Count;
-        }
-        private void order(Book book)
-        {
-            for (int i = 0; i < book.Author_Book.Count; i++)
+            return query
+            .Include(dbBook => dbBook.language)
+            .Include(dbBook => dbBook.Book_Category)
+            .ThenInclude(dbBookCategory => dbBookCategory.category)
+            .Select(dbBook => new Book
             {
-                book.Author_Book[i].order = i;
-            }
+                id = dbBook.id,
+                title = dbBook.title,
+                dateCreation = dbBook.dateCreation,
+                numPages = dbBook.numPages,
+                language = dbBook.language,
+                Book_Category = dbBook.Book_Category
+            });
         }
 
-        [HttpPatch("{id:int}")]
-        public async Task<ActionResult> patch(int id, JsonPatchDocument<bookPatchDto> patchDocument)
+        protected override async Task<errorMessageDto> validPost(bookCreationDto bookNew)
         {
-            if (patchDocument == null)
-                return BadRequest();
-            Book book = await context.Books.FirstOrDefaultAsync(bookDb => bookDb.id == id);
-            if (book == null)
-                return NotFound();
-            bookPatchDto bookPatch = mapper.Map<bookPatchDto>(book);
-            patchDocument.ApplyTo(bookPatch, ModelState);
-            if (!TryValidateModel(bookPatch))
-                return BadRequest(ModelState);
-            mapper.Map(bookPatch, book);
-            await context.SaveChangesAsync();
-            return NoContent();
-
+            return await validListBook(bookNew);
         }
-
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult> delete(int id)
-        {
-            Boolean exits = await context.Books.AnyAsync(x => x.id == id);
-            if (!exits)
-            {
-                return NotFound();
-            }
-            context.Remove(new Book { id = id });
-            await context.SaveChangesAsync();
-            return Ok();
-        }
-
     }
 }
