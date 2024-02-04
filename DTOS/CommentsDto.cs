@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using prueba.entities;
 
 namespace prueba.DTOS
@@ -10,7 +11,8 @@ namespace prueba.DTOS
     {
         public int id { get; set; }
         public string content { get; set; }
-        public List<Comments> comments { get; set; }
+        public userDto user { get; set; }
+
 
     }
 }

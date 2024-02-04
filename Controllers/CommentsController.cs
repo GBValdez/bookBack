@@ -32,11 +32,9 @@ namespace prueba.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> post(int idBook, CommentsCreationDto comment)
+        public async Task<ActionResult<CommentsDto>> post(int idBook, CommentsCreationDto comment)
         {
             string idUser = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-
 
             Book exits = await context.Books.FirstOrDefaultAsync(bookDB => bookDB.id == idBook);
             if (exits == null)
@@ -48,7 +46,7 @@ namespace prueba.Controllers
             context.Add(newComment);
             await context.SaveChangesAsync();
             CommentsDto results = mapper.Map<CommentsDto>(newComment);
-            return CreatedAtRoute("getCommentById", new { id = newComment.id }, results);
+            return results;
         }
 
 

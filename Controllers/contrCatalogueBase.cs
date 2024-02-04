@@ -7,11 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using prueba.DTOS;
+using prueba.entities;
 
 namespace prueba.Controllers
 {
     public abstract class contrCatalogueBase<TEntity> : ControllerBase
-    where TEntity : class
+    where TEntity : CommonsModel
     {
         protected readonly AplicationDBContex context;
         protected readonly IMapper mapper;
@@ -23,7 +24,7 @@ namespace prueba.Controllers
         [HttpGet]
         public async Task<ActionResult<List<catalogueDto>>> get()
         {
-            List<TEntity> list = await context.Set<TEntity>().ToListAsync();
+            List<TEntity> list = await context.Set<TEntity>().Where(db => db.deleteAt == null).ToListAsync();
             return mapper.Map<List<catalogueDto>>(list);
         }
 

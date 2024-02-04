@@ -37,23 +37,29 @@ namespace prueba.Controllers
         public async Task<ActionResult<authorDto>> getOne(int id, [FromQuery] Boolean? all = false)
         {
             IQueryable<Author> authorQuery = context.Authors.Include(authorDb => authorDb.country);
-            if (all.Value)
-                authorQuery = authorQuery
-                   .Include(author => author.Author_Book)
-                   .ThenInclude(authorBook => authorBook.Book);
             Author author = await authorQuery.FirstOrDefaultAsync(authorDB => authorDB.id == id && authorDB.deleteAt == null);
 
             if (author == null)
-            {
                 return NotFound();
+
+            if (all.Value)
+            {
+                List<Author_Book> books = await context.Author_Book
+                    .Where(
+                    bookDb => bookDb.AuthorId == author.id && bookDb.Book.deleteAt == null
+                    ).Include(bookDb => bookDb.Book)
+                    .ToListAsync();
+                author.Author_Book = books;
             }
+
+
             return mapper.Map<authorDto>(author);
         }
 
         [HttpGet("byName")]
         public async Task<ActionResult<List<authorDto>>> getByName([FromQuery] string name)
         {
-            var authors = await context.Authors.Where(authorDB => authorDB.name.ToLower().Contains(name.ToLower())).ToListAsync();
+            var authors = await context.Authors.Where(authorDB => authorDB.name.ToLower().Contains(name.ToLower()) && authorDB.deleteAt == null).ToListAsync();
             if (authors == null)
                 return NotFound();
             return mapper.Map<List<authorDto>>(authors);

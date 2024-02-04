@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using prueba.DTOS;
 using prueba.entities;
 
@@ -27,7 +28,6 @@ namespace prueba.autoMapper
             CreateMap<Comments, CommentsDto>();
 
             CreateMap<bookPatchDto, Book>().ReverseMap();
-            CreateMap<Comments, CommentsDto>();
 
             CreateMap<catalogueCreationDto, Country>();
             CreateMap<Country, catalogueDto>();
@@ -37,6 +37,9 @@ namespace prueba.autoMapper
 
             CreateMap<catalogueCreationDto, Category>();
             CreateMap<Category, catalogueDto>();
+
+            CreateMap<IdentityUser, userDto>();
+
         }
 
         public List<bookDto> mapBooksByAuthor(Author author, authorDto authorDto)

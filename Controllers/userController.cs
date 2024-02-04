@@ -31,10 +31,9 @@ namespace prueba.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<authenticationDto>> register(credentialsDto credentials)
+        public async Task<ActionResult<authenticationDto>> register(userCreationDto credentials)
         {
-
-            IdentityUser user = new IdentityUser() { UserName = credentials.email, Email = credentials.email };
+            IdentityUser user = new IdentityUser() { UserName = credentials.userName, Email = credentials.email };
             IdentityResult result = await userManager.CreateAsync(user, credentials.password);
             if (result.Succeeded)
             {
