@@ -14,7 +14,7 @@ namespace prueba.DTOS
         public DateTime dateCreation { get; set; }
         public int numPages { get; set; }
         public catalogueDto language { get; set; }
-        public List<CommentsDto> comments { get; set; }
+        // public List<CommentsDto> comments { get; set; }
         public List<authorDto> authors { get; set; }
         public List<catalogueDto> categories { get; set; }
 

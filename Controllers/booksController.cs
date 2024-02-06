@@ -18,9 +18,9 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("books")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class BooksController : controllerCommons<Book, bookCreationDto, bookDto>
+    public class BooksController : controllerCommons<Book, bookCreationDto, bookDto, object, object>
     {
         public BooksController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
@@ -45,7 +45,7 @@ namespace prueba.Controllers
         }
 
         [HttpGet("{id:int}", Name = "getBookById"),]
-        public async Task<ActionResult<bookDto>> getById(int id, [FromQuery] Boolean? all = false)
+        public async Task<ActionResult<bookDto>> getById(int id)
         {
             IQueryable<Book> bookQuery = context.Books
                 .Include(bookDb => bookDb.language);
@@ -53,24 +53,6 @@ namespace prueba.Controllers
             Book bookOnly = await bookQuery.FirstOrDefaultAsync(bookDb => bookDb.id == id && bookDb.deleteAt == null);
             if (bookOnly == null)
                 return NotFound();
-
-            if (all.Value)
-            {
-                string idUser = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                List<Comments> comments = await context.comments.Where(
-                    commentDb => commentDb.BookId == bookOnly.id && bookOnly.deleteAt == null
-                ).Include(commentDb => commentDb.user)
-                .ToListAsync();
-                comments.ForEach(commentDb =>
-                {
-                    Boolean validUser = commentDb.userId == idUser;
-                    commentDb.id = validUser ? commentDb.id : -1;
-                    commentDb.user.Id = null;
-                    commentDb.user.Email = null;
-                });
-
-                bookOnly.comments = comments;
-            }
 
             List<Book_Category> bookCategories = await context.Book_Category.Where(
                 bookDb => bookDb.category.deleteAt == null && bookDb.bookId == bookOnly.id
@@ -100,7 +82,7 @@ namespace prueba.Controllers
                 return new errorMessageDto("No existe alguno de los autores");
             return null;
         }
-        protected override IQueryable<Book> modifyGet(IQueryable<Book> query)
+        protected override IQueryable<Book> modifyGet(IQueryable<Book> query, object queryParam)
         {
             return query
             .Include(dbBook => dbBook.language)
@@ -117,7 +99,7 @@ namespace prueba.Controllers
             });
         }
 
-        protected override async Task<errorMessageDto> validPost(bookCreationDto bookNew)
+        protected override async Task<errorMessageDto> validPost(bookCreationDto bookNew, object obj)
         {
             return await validListBook(bookNew);
         }

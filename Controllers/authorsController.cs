@@ -20,14 +20,14 @@ namespace prueba.Controllers
     [Route("[controller]")]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto>
+    public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, authorCreationDto, object>
     {
 
         public AuthorsController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
         { }
 
-        protected override IQueryable<Author> modifyGet(IQueryable<Author> query)
+        protected override IQueryable<Author> modifyGet(IQueryable<Author> query, authorCreationDto queryParams)
         {
             return query.Include(authorDb => authorDb.country)
            .Select(authorDB => new Author { id = authorDB.id, name = authorDB.name, birthDate = authorDB.birthDate, country = authorDB.country });
@@ -65,7 +65,7 @@ namespace prueba.Controllers
             return mapper.Map<List<authorDto>>(authors);
         }
 
-        protected override async Task<errorMessageDto> validPost(authorCreationDto newAuthor)
+        protected override async Task<errorMessageDto> validPost(authorCreationDto newAuthor, object obj)
         {
             Boolean exits = await context.Authors.AnyAsync(x => x.name == newAuthor.name);
             if (exits)

@@ -10,6 +10,8 @@ namespace prueba.DTOS
 
         public List<T> items { get; set; }
         public int total { get; set; }
+        public int totalPages { get; set; }
+
         public int index { get; set; }
     }
 }

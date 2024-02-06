@@ -49,7 +49,8 @@ namespace prueba.Controllers
 
         public async Task<ActionResult<authenticationDto>> login(credentialsDto credentials)
         {
-            var result = await signManager.PasswordSignInAsync(credentials.email, credentials.password, false, false);
+            IdentityUser EMAIL = await userManager.FindByEmailAsync(credentials.email);
+            var result = await signManager.PasswordSignInAsync(EMAIL.UserName, credentials.password, false, false);
             if (result.Succeeded)
                 return await createToken(credentials);
             else
@@ -98,6 +99,8 @@ namespace prueba.Controllers
                 claimUser.Add(new Claim(ClaimTypes.Role, rol));
             }
             claimUser.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
+            claimUser.Add(new Claim(ClaimTypes.Name, user.UserName)); // Agrega el nombre de usuario como un claim
+
 
             // Estos son los parametros que guardara el webToken
             List<Claim> claims = new List<Claim>(){
