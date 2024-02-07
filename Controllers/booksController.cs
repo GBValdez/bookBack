@@ -26,8 +26,25 @@ namespace prueba.Controllers
         : base(context, mapper)
         { }
 
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> put(int id, bookCreationDto book)
+        // {
+        //     errorMessageDto error = await this.validListBook(book);
+        //     if (error != null)
+        //         return BadRequest(error);
+        //     Book bookUpd = await context.Books
+        //         .Include(bookDB => bookDB.Author_Book)
+        //         .Include(bookBb => bookBb.Book_Category)
+        //         .FirstOrDefaultAsync(bookDb => bookDb.id == id);
+        //     if (bookUpd == null)
+        //         return NotFound();
+        //     bookUpd = mapper.Map(book, bookUpd);
+
+        //     await context.SaveChangesAsync();
+        //     return NoContent();
+        // }
         [HttpPut("{id}")]
-        public async Task<IActionResult> put(int id, bookCreationDto book)
+        public override async Task<ActionResult> put(bookCreationDto book, int id, object query)
         {
             errorMessageDto error = await this.validListBook(book);
             if (error != null)

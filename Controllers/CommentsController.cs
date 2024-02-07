@@ -58,58 +58,14 @@ namespace prueba.Controllers
                 return new errorMessageDto("No existe el libro");
             return null;
         }
-        // [HttpPost]
-        // public async Task<ActionResult<CommentsDto>> post(int idBook, CommentsCreationDto comment)
-        // {
-        //     string idUser = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        //     Book exits = await context.Books.FirstOrDefaultAsync(bookDB => bookDB.id == idBook);
-        //     if (exits == null)
-        //         return NotFound();
-
-        //     Comments newComment = mapper.Map<Comments>(comment);
-        //     newComment.BookId = idBook;
-        //     newComment.userId = idUser;
-        //     context.Add(newComment);
-        //     await context.SaveChangesAsync();
-        //     CommentsDto results = mapper.Map<CommentsDto>(newComment);
-        //     return results;
-        // }
-
-
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult> put(CommentsCreationDto comment, int id)
+        protected override async Task<errorMessageDto> validPut(CommentsCreationDto dtoNew, Comments entity, commentsParams queryParams)
         {
-            Boolean exits = await context.comments.AnyAsync(x => x.id == id);
-            if (!exits)
-            {
-                return NotFound();
-            }
-            Comments updComment = mapper.Map<Comments>(comment);
-            updComment.id = id;
-            context.Update(updComment);
-            await context.SaveChangesAsync();
-            return NoContent();
+            string idUser = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (entity.userId != idUser)
+                return new errorMessageDto("El comentario no coincide con su creador");
+            return null;
         }
-
-        // [HttpGet]
-        // public async Task<ActionResult<List<CommentsDto>>> get(int idBook)
-        // {
-        //     Book exits = await context.Books.FirstOrDefaultAsync(bookDB => bookDB.id == idBook);
-        //     if (exits == null)
-        //         return NotFound();
-        //     List<Comments> commentsList = await context.comments.Where(commentDB => commentDB.BookId == idBook).ToListAsync();
-        //     return mapper.Map<List<CommentsDto>>(commentsList);
-        // }
-
-        // [HttpGet("/comment/{id}", Name = "getCommentById")]
-        // public async Task<ActionResult<CommentsDto>> getById(int idBook, int id)
-        // {
-        //     Comments comment = await context.comments.FirstOrDefaultAsync(comment => comment.id == id);
-        //     if (comment == null)
-        //         return NotFound();
-        //     return mapper.Map<CommentsDto>(comment);
-        // }
 
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -33,35 +34,75 @@ namespace prueba.Controllers
         {
             IQueryable<TEntity> query = context.Set<TEntity>().Where(db => db.deleteAt == null);
 
-            var queryableType = typeof(TEntity);
-            var properties = typeof(TQuery).GetProperties()
+            Type queryableType = typeof(TEntity);
+            IEnumerable<PropertyInfo> properties = typeof(TQuery).GetProperties()
                 .Where(prop => prop.GetValue(queryParams) != null); // Considera solo propiedades no nulas
 
-            foreach (var property in properties)
+            foreach (PropertyInfo property in properties)
             {
                 var value = property.GetValue(queryParams);
-                var entityProperty = queryableType.GetProperty(property.Name);
+                string entityPropertyName = property.Name;
+                string operation = "Equal"; // Operación predeterminada
+
+                // Determinar el nombre real de la propiedad y la operación basado en el nombre de la propiedad en TQuery
+                if (entityPropertyName.EndsWith("Cont"))
+                {
+                    entityPropertyName = entityPropertyName.Replace("Cont", "");
+                    operation = "Contains";
+                }
+                else if (entityPropertyName.EndsWith("Great"))
+                {
+                    entityPropertyName = entityPropertyName.Replace("Great", "");
+                    operation = "GreaterThan";
+                }
+                else if (entityPropertyName.EndsWith("Small"))
+                {
+                    entityPropertyName = entityPropertyName.Replace("Small", "");
+                    operation = "LessThan";
+                }
+
+                PropertyInfo entityProperty = queryableType.GetProperty(entityPropertyName);
 
                 if (entityProperty != null)
                 {
                     // Construye una expresión lambda dinámicamente y aplica el filtro
-                    var parameter = Expression.Parameter(typeof(TEntity), "e");
-                    var propertyAccess = Expression.MakeMemberAccess(parameter, entityProperty);
-                    var constantValue = Expression.Constant(value);
-                    var equality = Expression.Equal(propertyAccess, constantValue);
-                    var lambda = Expression.Lambda<Func<TEntity, bool>>(equality, parameter);
+                    ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
+                    MemberExpression propertyAccess = Expression.MakeMemberAccess(parameter, entityProperty);
+                    ConstantExpression constantValue = Expression.Constant(value);
 
+                    Expression condition;
+                    if (operation == "Contains" && entityProperty.PropertyType == typeof(string))
+                    {
+                        // Usar el método Contains para cadenas
+                        MethodInfo containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                        condition = Expression.Call(propertyAccess, containsMethod, constantValue);
+                    }
+                    else if (operation == "GreaterThan" || operation == "LessThan")
+                    {
+                        // Usar operadores GreaterThan o LessThan
+                        condition = operation == "GreaterThan" ?
+                            Expression.GreaterThan(propertyAccess, constantValue) :
+                            Expression.LessThan(propertyAccess, constantValue);
+                    }
+                    else
+                    {
+                        // Igualdad por defecto
+                        condition = Expression.Equal(propertyAccess, constantValue);
+                    }
+
+                    var lambda = Expression.Lambda<Func<TEntity, bool>>(condition, parameter);
                     query = query.Where(lambda);
                 }
             }
 
+            query = this.modifyGet(query, queryParams);
 
             int total = await query.CountAsync();
             int totalPages = (int)Math.Ceiling((double)total / pageSize);
             if (pageNumber > totalPages)
                 return BadRequest(new errorMessageDto("El indice de la pagina es mayor que el numero de paginas total"));
 
-            List<TEntity> listDb = await this.modifyGet(query, queryParams)
+            List<TEntity> listDb = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -94,7 +135,7 @@ namespace prueba.Controllers
             await context.SaveChangesAsync();
             return this.mapper.Map<TDto>(newRegisterEntity);
         }
-        protected virtual Task<errorMessageDto> validPost(TDtoCreation dtoNew, TQueryCreation queryParams)
+        protected async virtual Task<errorMessageDto> validPost(TDtoCreation dtoNew, TQueryCreation queryParams)
         {
             return null;
         }
@@ -115,6 +156,26 @@ namespace prueba.Controllers
             exits.deleteAt = DateTime.Now.ToUniversalTime();
             await context.SaveChangesAsync();
             return Ok();
+        }
+
+        [HttpPut("{id:int}")]
+        public virtual async Task<ActionResult> put(TDtoCreation entityCurrent, [FromRoute] int id, [FromQuery] TQueryCreation queryCreation)
+        {
+
+            TEntity exits = await context.Set<TEntity>().FirstOrDefaultAsync(db => db.id == id && db.deleteAt == null);
+            if (exits == null)
+                return NotFound();
+            errorMessageDto error = await this.validPut(entityCurrent, exits, queryCreation);
+            if (error != null)
+                return BadRequest(error);
+            exits = mapper.Map(entityCurrent, exits);
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        protected virtual async Task<errorMessageDto> validPut(TDtoCreation dtoNew, TEntity entity, TQueryCreation queryParams)
+        {
+            return null;
         }
     }
 }
