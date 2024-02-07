@@ -20,14 +20,14 @@ namespace prueba.Controllers
     [Route("[controller]")]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, object, object>
+    public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, authorQueryDto, object>
     {
 
         public AuthorsController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
         { }
 
-        protected override IQueryable<Author> modifyGet(IQueryable<Author> query, object queryParams)
+        protected override IQueryable<Author> modifyGet(IQueryable<Author> query, authorQueryDto queryParams)
         {
             return query.Include(authorDb => authorDb.country)
            .Select(authorDB => new Author { id = authorDB.id, name = authorDB.name, birthDate = authorDB.birthDate, country = authorDB.country });

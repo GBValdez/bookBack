@@ -98,7 +98,15 @@ namespace prueba.Controllers
             query = this.modifyGet(query, queryParams);
 
             int total = await query.CountAsync();
+
+            if (total == 0)
+            {
+
+                return NotFound(new errorMessageDto("No se encontraron registros"));
+            }
+
             int totalPages = (int)Math.Ceiling((double)total / pageSize);
+
             if (pageNumber > totalPages)
                 return BadRequest(new errorMessageDto("El indice de la pagina es mayor que el numero de paginas total"));
 

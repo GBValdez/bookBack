@@ -20,7 +20,7 @@ namespace prueba.Controllers
     [Route("books")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-    public class BooksController : controllerCommons<Book, bookCreationDto, bookDto, object, object>
+    public class BooksController : controllerCommons<Book, bookCreationDto, bookDto, bookQueryDto, object>
     {
         public BooksController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
@@ -99,12 +99,19 @@ namespace prueba.Controllers
                 return new errorMessageDto("No existe alguno de los autores");
             return null;
         }
-        protected override IQueryable<Book> modifyGet(IQueryable<Book> query, object queryParam)
+        protected override IQueryable<Book> modifyGet(IQueryable<Book> query, bookQueryDto queryParam)
         {
+
+            int[] categoriesQuery = { };
+            if (queryParam.categoriesId != null)
+            {
+                categoriesQuery = Array.ConvertAll(queryParam.categoriesId.Split(","), int.Parse);
+            }
             return query
             .Include(dbBook => dbBook.language)
             .Include(dbBook => dbBook.Book_Category)
             .ThenInclude(dbBookCategory => dbBookCategory.category)
+            .Where(dbBook => (dbBook.Book_Category.Any(category => categoriesQuery.Contains(category.categoryId)) | queryParam.categoriesId == null))
             .Select(dbBook => new Book
             {
                 id = dbBook.id,
