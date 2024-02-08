@@ -36,6 +36,7 @@ namespace prueba
 
             services.AddHttpContextAccessor();
             services.AddScoped<interceptorDb>();
+            services.AddTransient<emailService>();
 
             services.AddDbContext<AplicationDBContex>((serviceProvider, options) =>
                 {

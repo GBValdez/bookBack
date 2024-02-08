@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 using prueba.DTOS;
+using prueba.services;
 
 namespace prueba.Controllers
 {
@@ -23,21 +25,32 @@ namespace prueba.Controllers
         private readonly IConfiguration configuration;
         // Esto nos va a servir para el login
         private readonly SignInManager<IdentityUser> signManager;
-        public userController(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signManager)
+        private readonly emailService emailService;
+        public userController(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signManager, emailService emailService)
         {
             this.userManager = userManager;
             this.configuration = configuration;
             this.signManager = signManager;
+            this.emailService = emailService;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<authenticationDto>> register(userCreationDto credentials)
+        public async Task<ActionResult> register(userCreationDto credentials)
         {
             IdentityUser user = new IdentityUser() { UserName = credentials.userName, Email = credentials.email };
             IdentityResult result = await userManager.CreateAsync(user, credentials.password);
             if (result.Succeeded)
             {
-                return await createToken(credentials);
+                await userManager.AddToRoleAsync(user, "userNormal");
+                string token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                emailService.SendEmail(new emailSendDto
+                {
+                    email = credentials.email,
+                    subject = "Confirmacion de correo",
+                    message = $"<h1>Correo de confirmación</h1> <a href='{configuration["FrontUrl"]}/user/confirmEmail?email={credentials.email}&token={encodedToken}'>Confirmar correo</a>"
+                });
+                return Ok();
             }
             else
             {
@@ -45,11 +58,33 @@ namespace prueba.Controllers
             }
         }
 
+        [HttpGet("confirmEmail")]
+        public async Task<ActionResult> confirmEmail([FromQuery] string email, [FromQuery] string token)
+        {
+            IdentityUser user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+                return BadRequest("Usuario no encontrado");
+            byte[] decodedToken = WebEncoders.Base64UrlDecode(token);
+            string normalToken = Encoding.UTF8.GetString(decodedToken);
+            IdentityResult result = await userManager.ConfirmEmailAsync(user, normalToken);
+            if (result.Succeeded)
+                return Ok();
+            else
+                return BadRequest(result.Errors);
+        }
+
         [HttpPost("login")]
 
         public async Task<ActionResult<authenticationDto>> login(credentialsDto credentials)
         {
+
             IdentityUser EMAIL = await userManager.FindByEmailAsync(credentials.email);
+            if (EMAIL == null)
+                return BadRequest(new errorMessageDto("Credenciales invalidas"));
+
+            if (await userManager.IsEmailConfirmedAsync(EMAIL) == false)
+                return BadRequest(new errorMessageDto("Credenciales invalidas"));
+
             var result = await signManager.PasswordSignInAsync(EMAIL.UserName, credentials.password, false, false);
             if (result.Succeeded)
                 return await createToken(credentials);
