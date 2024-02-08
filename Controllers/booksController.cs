@@ -26,23 +26,7 @@ namespace prueba.Controllers
         : base(context, mapper)
         { }
 
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> put(int id, bookCreationDto book)
-        // {
-        //     errorMessageDto error = await this.validListBook(book);
-        //     if (error != null)
-        //         return BadRequest(error);
-        //     Book bookUpd = await context.Books
-        //         .Include(bookDB => bookDB.Author_Book)
-        //         .Include(bookBb => bookBb.Book_Category)
-        //         .FirstOrDefaultAsync(bookDb => bookDb.id == id);
-        //     if (bookUpd == null)
-        //         return NotFound();
-        //     bookUpd = mapper.Map(book, bookUpd);
 
-        //     await context.SaveChangesAsync();
-        //     return NoContent();
-        // }
         [HttpPut("{id}")]
         public override async Task<ActionResult> put(bookCreationDto book, int id, object query)
         {
@@ -62,6 +46,7 @@ namespace prueba.Controllers
         }
 
         [HttpGet("{id:int}", Name = "getBookById"),]
+        [AllowAnonymous]
         public async Task<ActionResult<bookDto>> getById(int id)
         {
             IQueryable<Book> bookQuery = context.Books
@@ -107,12 +92,14 @@ namespace prueba.Controllers
             {
                 categoriesQuery = Array.ConvertAll(queryParam.categoriesId.Split(","), int.Parse);
             }
-            return query
+            IQueryable<Book> queryFinal = query
             .Include(dbBook => dbBook.language)
             .Include(dbBook => dbBook.Book_Category)
-            .ThenInclude(dbBookCategory => dbBookCategory.category)
-            .Where(dbBook => (dbBook.Book_Category.Any(category => categoriesQuery.Contains(category.categoryId)) | queryParam.categoriesId == null))
-            .Select(dbBook => new Book
+            .ThenInclude(dbBookCategory => dbBookCategory.category);
+            if (queryParam.categoriesId != null)
+                queryFinal = queryFinal.Where(dbBook => dbBook.Book_Category.Any(category => categoriesQuery.Contains(category.categoryId)));
+
+            return queryFinal.Select(dbBook => new Book
             {
                 id = dbBook.id,
                 title = dbBook.title,

@@ -18,7 +18,7 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
     public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, authorQueryDto, object>
     {
@@ -34,6 +34,7 @@ namespace prueba.Controllers
         }
         //Con poner el signo de interrogacion al final del parametro lo hacemos opcional y puedes setear un valor por defecto
         [HttpGet("{id:int}", Name = "getAuthorId")]
+        [AllowAnonymous]
         public async Task<ActionResult<authorDto>> getOne(int id, [FromQuery] Boolean? all = false)
         {
             IQueryable<Author> authorQuery = context.Authors.Include(authorDb => authorDb.country);

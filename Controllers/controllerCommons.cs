@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using prueba.DTOS;
@@ -30,6 +32,7 @@ namespace prueba.Controllers
         }
 
         [HttpGet()]
+        [AllowAnonymous]
         public async Task<ActionResult<resPag<TDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber, [FromQuery] TQuery queryParams)
         {
             IQueryable<TEntity> query = context.Set<TEntity>().Where(db => db.deleteAt == null);
@@ -81,8 +84,8 @@ namespace prueba.Controllers
                     {
                         // Usar operadores GreaterThan o LessThan
                         condition = operation == "GreaterThan" ?
-                            Expression.GreaterThan(propertyAccess, constantValue) :
-                            Expression.LessThan(propertyAccess, constantValue);
+                            Expression.GreaterThanOrEqual(propertyAccess, constantValue) :
+                            Expression.LessThanOrEqual(propertyAccess, constantValue);
                     }
                     else
                     {
@@ -132,6 +135,7 @@ namespace prueba.Controllers
         protected virtual void modifyGetResult(List<TEntity> list) { }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<ActionResult<TDto>> post(TDtoCreation newRegister, [FromQuery] TQueryCreation queryParams)
         {
             errorMessageDto error = await this.validPost(newRegister, queryParams);
@@ -153,6 +157,7 @@ namespace prueba.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<ActionResult> delete(int id)
         {
             TEntity exits = await context.Set<TEntity>()
@@ -167,6 +172,8 @@ namespace prueba.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+
         public virtual async Task<ActionResult> put(TDtoCreation entityCurrent, [FromRoute] int id, [FromQuery] TQueryCreation queryCreation)
         {
 

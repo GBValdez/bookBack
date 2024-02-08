@@ -21,6 +21,8 @@ namespace prueba.Controllers
 
     public class CommentsController : controllerCommons<Comments, CommentsCreationDto, CommentsDto, commentsParams, commentsParams>
     {
+
+
         private readonly UserManager<IdentityUser> userManager;
         public CommentsController(AplicationDBContex context, IMapper mapper, UserManager<IdentityUser> userManager) : base(context, mapper)
         {
@@ -37,7 +39,11 @@ namespace prueba.Controllers
             string idUser = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             list.ForEach(commentDb =>
                 {
-                    Boolean validUser = commentDb.user.Id == idUser;
+                    Boolean validUser = false;
+                    if (idUser != null)
+                    {
+                        validUser = commentDb.user.Id == idUser;
+                    }
                     commentDb.id = validUser ? commentDb.id : -1;
                     commentDb.user.Email = null;
                 });
