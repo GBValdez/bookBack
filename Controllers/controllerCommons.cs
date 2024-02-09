@@ -135,8 +135,7 @@ namespace prueba.Controllers
         protected virtual void modifyGetResult(List<TEntity> list) { }
 
         [HttpPost]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-        public async Task<ActionResult<TDto>> post(TDtoCreation newRegister, [FromQuery] TQueryCreation queryParams)
+        public virtual async Task<ActionResult<TDto>> post(TDtoCreation newRegister, [FromQuery] TQueryCreation queryParams)
         {
             errorMessageDto error = await this.validPost(newRegister, queryParams);
             if (error != null)
@@ -157,7 +156,6 @@ namespace prueba.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
         public async Task<ActionResult> delete(int id)
         {
             TEntity exits = await context.Set<TEntity>()
@@ -172,8 +170,6 @@ namespace prueba.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-
         public virtual async Task<ActionResult> put(TDtoCreation entityCurrent, [FromRoute] int id, [FromQuery] TQueryCreation queryCreation)
         {
 

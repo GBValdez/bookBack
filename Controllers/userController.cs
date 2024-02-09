@@ -48,7 +48,7 @@ namespace prueba.Controllers
                 {
                     email = credentials.email,
                     subject = "Confirmacion de correo",
-                    message = $"<h1>Correo de confirmación</h1> <a href='{configuration["FrontUrl"]}/user/confirmEmail?email={credentials.email}&token={encodedToken}'>Confirmar correo</a>"
+                    message = $"<h1>Correo de confirmación BookMaster</h1> <a href='{configuration["FrontUrl"]}/user/confirmEmail?email={credentials.email}&token={encodedToken}'>Confirmar correo</a>"
                 });
                 return Ok();
             }
@@ -57,6 +57,42 @@ namespace prueba.Controllers
                 return BadRequest(result.Errors);
             }
         }
+
+        [HttpPost("forgotPassword")]
+        public async Task<ActionResult> forgotPassword([FromBody] emailDto email)
+        {
+            IdentityUser user = await userManager.FindByEmailAsync(email.email);
+            if (user == null)
+                NoContent();
+
+            if (await userManager.IsEmailConfirmedAsync(user) == false)
+                NoContent();
+            string token = await userManager.GeneratePasswordResetTokenAsync(user);
+            string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            emailService.SendEmail(new emailSendDto
+            {
+                email = email.email,
+                subject = "Recuperar contraseña BookMaster",
+                message = $"<h1>Recuperar contraseña</h1> <a href='{configuration["FrontUrl"]}/user/resetPassword/{email.email}/{encodedToken}'>Recuperar contraseña</a>"
+            });
+            return NoContent();
+        }
+
+        [HttpPost("resetPassword")]
+        public async Task<ActionResult> resetPassword([FromBody] resetPasswordDto resetPassword)
+        {
+            IdentityUser user = await userManager.FindByEmailAsync(resetPassword.email);
+            if (user == null)
+                return BadRequest(new errorMessageDto("El enlace para restablecer la contraseña es inválido o ha expirado."));
+            byte[] decodedToken = WebEncoders.Base64UrlDecode(resetPassword.token);
+            string normalToken = Encoding.UTF8.GetString(decodedToken);
+            IdentityResult result = await userManager.ResetPasswordAsync(user, normalToken, resetPassword.password);
+            if (result.Succeeded)
+                return Ok();
+            else
+                return BadRequest(result.Errors);
+        }
+
 
         [HttpGet("confirmEmail")]
         public async Task<ActionResult> confirmEmail([FromQuery] string email, [FromQuery] string token)

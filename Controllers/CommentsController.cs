@@ -18,11 +18,8 @@ namespace prueba.Controllers
     [ApiController]
     [Route("books/{BookId}/comments")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-
     public class CommentsController : controllerCommons<Comments, CommentsCreationDto, CommentsDto, commentsParams, commentsParams>
     {
-
-
         private readonly UserManager<IdentityUser> userManager;
         public CommentsController(AplicationDBContex context, IMapper mapper, UserManager<IdentityUser> userManager) : base(context, mapper)
         {

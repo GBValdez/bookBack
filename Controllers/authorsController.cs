@@ -18,8 +18,7 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
     public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, authorQueryDto, object>
     {
 
