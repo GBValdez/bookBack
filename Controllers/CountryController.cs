@@ -12,7 +12,7 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("country")]
-    public class CountryController : controllerCommons<Country, catalogueCreationDto, catalogueDto, object, object, int>
+    public class CountryController : controllerCommons<Country, catalogueCreationDto, catalogueDto, catalogueQueryDto, object, int>
     {
         public CountryController(AplicationDBContex context, IMapper mapper)
        : base(context, mapper)

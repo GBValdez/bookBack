@@ -44,6 +44,7 @@ namespace prueba.autoMapper
 
 
             CreateMap<rolEntity, rolDto>();
+            CreateMap<rolCreationDto, rolEntity>();
 
         }
 

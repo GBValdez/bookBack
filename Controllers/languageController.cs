@@ -11,11 +11,10 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("language")]
-    public class languageController : controllerCommons<Language, catalogueCreationDto, catalogueDto, object, object, int>
+    public class languageController : controllerCommons<Language, catalogueCreationDto, catalogueDto, catalogueQueryDto, object, int>
     {
         public languageController(AplicationDBContex context, IMapper mapper)
        : base(context, mapper)
         { }
-        protected override bool showDeleted { get; set; } = true;
     }
 }

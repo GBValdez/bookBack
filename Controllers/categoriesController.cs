@@ -11,7 +11,7 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("category")]
-    public class categoriesController : controllerCommons<Category, catalogueCreationDto, catalogueDto, object, object, int>
+    public class categoriesController : controllerCommons<Category, catalogueCreationDto, catalogueDto, catalogueQueryDto, object, int>
     {
         public categoriesController(AplicationDBContex context, IMapper mapper)
        : base(context, mapper)
