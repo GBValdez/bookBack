@@ -23,6 +23,8 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("user")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMINISTRATOR")]
+
     public class userController : controllerCommons<userEntity, userUpdateDto, userDto, userQueryDto, object, string>
     {
         //Esto nos va servir para crear nuevos usuarios 
@@ -42,7 +44,6 @@ namespace prueba.Controllers
             this.dataProtector = dataProvider.CreateProtector(configuration["keyResetPasswordKey"]);
 
         }
-
         public override async Task<ActionResult> put(userUpdateDto user, [FromRoute] string id, [FromQuery] object queryCreation)
         {
             userEntity userDB = await userManager.FindByNameAsync(id);
@@ -105,6 +106,7 @@ namespace prueba.Controllers
 
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<ActionResult> register(userCreationDto credentials)
         {
             userEntity user = new userEntity() { UserName = credentials.userName, Email = credentials.email };
@@ -147,14 +149,11 @@ namespace prueba.Controllers
                 else
                     query = query.Where(userDB => userDB.deleteAt != null);
             }
-
-
-
-
             return query;
         }
 
         [HttpPost("forgotPassword")]
+        [AllowAnonymous]
         public async Task<ActionResult> forgotPassword([FromBody] emailDto email)
         {
             userEntity user = await userManager.FindByEmailAsync(email.email);
@@ -183,6 +182,7 @@ namespace prueba.Controllers
         }
 
         [HttpPost("resetPassword")]
+        [AllowAnonymous]
         public async Task<ActionResult> resetPassword([FromBody] resetPasswordDto resetPassword)
         {
             string email = dataProtector.Unprotect(resetPassword.email);
@@ -201,6 +201,7 @@ namespace prueba.Controllers
 
 
         [HttpGet("confirmEmail")]
+        [AllowAnonymous]
         public async Task<ActionResult> confirmEmail([FromQuery] string email, [FromQuery] string token)
         {
             userEntity user = await userManager.FindByEmailAsync(email);
@@ -216,7 +217,7 @@ namespace prueba.Controllers
         }
 
         [HttpPost("login")]
-
+        [AllowAnonymous]
         public async Task<ActionResult<authenticationDto>> login(credentialsDto credentials)
         {
 
@@ -237,19 +238,17 @@ namespace prueba.Controllers
                 return BadRequest(new errorMessageDto("Credenciales invalidas"));
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("renewToken")]
-        public async Task<ActionResult<authenticationDto>> renewToken()
-        {
-            Claim email = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
-            credentialsDto credential = new credentialsDto
-            {
-                email = email.Value
-            };
-            return await createToken(credential);
-        }
-
-
+        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // [HttpPost("renewToken")]
+        // public async Task<ActionResult<authenticationDto>> renewToken()
+        // {
+        //     Claim email = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
+        //     credentialsDto credential = new credentialsDto
+        //     {
+        //         email = email.Value
+        //     };
+        //     return await createToken(credential);
+        // }
         private async Task<authenticationDto> createToken(credentialsDto credentials)
         {
             userEntity user = await userManager.FindByEmailAsync(credentials.email);

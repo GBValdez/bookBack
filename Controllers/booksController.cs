@@ -18,15 +18,18 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("books")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-
-
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMINISTRATOR")]
     public class BooksController : controllerCommons<Book, bookCreationDto, bookDto, bookQueryDto, object, int>
     {
         public BooksController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
         { }
 
+        [AllowAnonymous]
+        public override Task<ActionResult<resPag<bookDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber, [FromQuery] bookQueryDto queryParams, [FromQuery] bool? all = false)
+        {
+            return base.get(pageSize, pageNumber, queryParams, all);
+        }
 
         [HttpPut("{id}")]
         public override async Task<ActionResult> put(bookCreationDto book, int id, object query)

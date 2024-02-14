@@ -18,13 +18,20 @@ namespace prueba.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMINISTRATOR")]
     public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, authorQueryDto, object, int>
     {
 
         public AuthorsController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
         { }
+
+
+        [AllowAnonymous]
+        public override Task<ActionResult<resPag<authorDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber, [FromQuery] authorQueryDto queryParams, [FromQuery] bool? all = false)
+        {
+            return base.get(pageSize, pageNumber, queryParams, all);
+        }
 
         protected override async Task<IQueryable<Author>> modifyGet(IQueryable<Author> query, authorQueryDto queryParams)
         {
@@ -76,5 +83,14 @@ namespace prueba.Controllers
             return null;
         }
 
+        protected override async Task<errorMessageDto> validDelete(Author entity)
+        {
+            Boolean exist = await context.Books.AnyAsync(
+                bookDb => bookDb.Author_Book.Any(authorBookDb => authorBookDb.AuthorId == entity.Id)
+                && bookDb.deleteAt == null);
+            if (exist)
+                return new errorMessageDto("No se puede eliminar el autor porque tiene libros relacionados");
+            return null;
+        }
     }
 }

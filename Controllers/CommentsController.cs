@@ -26,6 +26,11 @@ namespace prueba.Controllers
             this.userManager = userManager;
         }
 
+        [AllowAnonymous]
+        public override Task<ActionResult<resPag<CommentsDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber, [FromQuery] commentsParams queryParams, [FromQuery] bool? all = false)
+        {
+            return base.get(pageSize, pageNumber, queryParams, all);
+        }
         protected override async Task<IQueryable<Comments>> modifyGet(IQueryable<Comments> query, commentsParams queryParams)
         {
             return query.Include(commentDb => commentDb.user);

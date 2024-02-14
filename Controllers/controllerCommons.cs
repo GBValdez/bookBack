@@ -33,8 +33,7 @@ namespace prueba.Controllers
         }
 
         [HttpGet()]
-        [AllowAnonymous]
-        public async Task<ActionResult<resPag<TDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber, [FromQuery] TQuery queryParams, [FromQuery] Boolean? all = false)
+        public virtual async Task<ActionResult<resPag<TDto>>> get([FromQuery] int pageSize, [FromQuery] int pageNumber, [FromQuery] TQuery queryParams, [FromQuery] Boolean? all = false)
         {
             IQueryable<TEntity> query = context.Set<TEntity>();
             if (!showDeleted)
@@ -113,7 +112,13 @@ namespace prueba.Controllers
             if (total == 0)
             {
 
-                return NotFound(new errorMessageDto("No se encontraron registros"));
+                return new resPag<TDto>
+                {
+                    items = new List<TDto>(),
+                    total = 0,
+                    index = 0,
+                    totalPages = 0
+                };
             }
 
             int totalPages = (int)Math.Ceiling((double)total / pageSize);
@@ -179,9 +184,17 @@ namespace prueba.Controllers
             {
                 return NotFound();
             }
+            errorMessageDto error = await this.validDelete(exits);
+            if (error != null)
+                return BadRequest(error);
             ((ICommonModel<idClass>)exits).deleteAt = DateTime.Now.ToUniversalTime();
             await context.SaveChangesAsync();
             return Ok();
+        }
+
+        protected virtual async Task<errorMessageDto> validDelete(TEntity entity)
+        {
+            return null;
         }
 
         [HttpPut("{id}")]
