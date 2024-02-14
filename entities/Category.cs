@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace prueba.entities
 {
-    public class Category : CommonsModel
+    public class Category : CommonsModel<int>
     {
-        public int id { get; set; }
         public string name { get; set; }
     }
 }

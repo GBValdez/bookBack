@@ -6,13 +6,12 @@ using Microsoft.AspNetCore.Identity;
 
 namespace prueba.entities
 {
-    public class Comments : CommonsModel
+    public class Comments : CommonsModel<int>
     {
-        public int id { get; set; }
         public string content { get; set; }
         public int BookId { get; set; }
         public Book book { get; set; }
         public string userId { get; set; }
-        public IdentityUser user { get; set; }
+        public userEntity user { get; set; }
     }
 }

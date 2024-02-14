@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -8,15 +7,11 @@ using prueba.interfaces;
 
 namespace prueba.entities
 {
-    public class CommonsModel<idClass> : ICommonModel<idClass>
+    public class userEntity : IdentityUser, ICommonModel<string>
     {
-        public idClass Id { get; set; }
-
         public DateTime updateAt { get; set; } = DateTime.Now.ToUniversalTime();
-        public string userUpdateId { get; set; }
-
-        [ForeignKey("userUpdateId")]
-        public userEntity userUpdate { get; set; }
+        public string? userUpdateId { get; set; }
         public DateTime? deleteAt { get; set; }
+        public userEntity userUpdate { get; set; }
     }
 }

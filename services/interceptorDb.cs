@@ -32,7 +32,7 @@ namespace prueba.services
         private void addUpdate(DbContextEventData eventData)
         {
             string id = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            foreach (var entry in eventData.Context.ChangeTracker.Entries<CommonsModel>())
+            foreach (var entry in eventData.Context.ChangeTracker.Entries<CommonsModel<int>>())
             {
                 if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
                 {

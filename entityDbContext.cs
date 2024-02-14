@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace prueba.entities
+namespace prueba
 {
-    public class Country : CommonsModel<int>
+    public class entityDbContext
     {
-        public string name { get; set; }
+        
     }
 }

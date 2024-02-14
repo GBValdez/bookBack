@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using prueba.entities;
 using prueba.services;
 
 namespace prueba
@@ -99,7 +100,7 @@ namespace prueba
             //Para agregar el automapper
             services.AddAutoMapper(typeof(startUp));
 
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<userEntity, rolEntity>()
                 .AddEntityFrameworkStores<AplicationDBContex>()
                 .AddDefaultTokenProviders();
 

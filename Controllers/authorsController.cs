@@ -19,17 +19,17 @@ namespace prueba.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
-    public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, authorQueryDto, object>
+    public class AuthorsController : controllerCommons<Author, authorCreationDto, authorDto, authorQueryDto, object, int>
     {
 
         public AuthorsController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
         { }
 
-        protected override IQueryable<Author> modifyGet(IQueryable<Author> query, authorQueryDto queryParams)
+        protected override async Task<IQueryable<Author>> modifyGet(IQueryable<Author> query, authorQueryDto queryParams)
         {
             return query.Include(authorDb => authorDb.country)
-           .Select(authorDB => new Author { id = authorDB.id, name = authorDB.name, birthDate = authorDB.birthDate, country = authorDB.country });
+           .Select(authorDB => new Author { Id = authorDB.Id, name = authorDB.name, birthDate = authorDB.birthDate, country = authorDB.country });
         }
         //Con poner el signo de interrogacion al final del parametro lo hacemos opcional y puedes setear un valor por defecto
         [HttpGet("{id:int}", Name = "getAuthorId")]
@@ -37,7 +37,7 @@ namespace prueba.Controllers
         public async Task<ActionResult<authorDto>> getOne(int id, [FromQuery] Boolean? all = false)
         {
             IQueryable<Author> authorQuery = context.Authors.Include(authorDb => authorDb.country);
-            Author author = await authorQuery.FirstOrDefaultAsync(authorDB => authorDB.id == id && authorDB.deleteAt == null);
+            Author author = await authorQuery.FirstOrDefaultAsync(authorDB => authorDB.Id == id && authorDB.deleteAt == null);
 
             if (author == null)
                 return NotFound();
@@ -46,7 +46,7 @@ namespace prueba.Controllers
             {
                 List<Author_Book> books = await context.Author_Book
                     .Where(
-                    bookDb => bookDb.AuthorId == author.id && bookDb.Book.deleteAt == null
+                    bookDb => bookDb.AuthorId == author.Id && bookDb.Book.deleteAt == null
                     ).Include(bookDb => bookDb.Book)
                     .ToListAsync();
                 author.Author_Book = books;
@@ -70,7 +70,7 @@ namespace prueba.Controllers
             Boolean exits = await context.Authors.AnyAsync(x => x.name == newAuthor.name);
             if (exits)
                 return new errorMessageDto($"{newAuthor.name} ya existe");
-            Boolean existCountry = await context.Country.AnyAsync(countryDB => countryDB.id == newAuthor.countryId);
+            Boolean existCountry = await context.Country.AnyAsync(countryDB => countryDB.Id == newAuthor.countryId);
             if (!existCountry)
                 return new errorMessageDto($"El pais con id {newAuthor.countryId} no existe");
             return null;

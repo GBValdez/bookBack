@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace prueba.entities
 {
-    public class Book : CommonsModel
+    public class Book : CommonsModel<int>
     {
-        public int id { get; set; }
         [Required]
         [StringLength(50)]
         public string title { get; set; }

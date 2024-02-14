@@ -21,7 +21,7 @@ namespace prueba.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrator")]
 
 
-    public class BooksController : controllerCommons<Book, bookCreationDto, bookDto, bookQueryDto, object>
+    public class BooksController : controllerCommons<Book, bookCreationDto, bookDto, bookQueryDto, object, int>
     {
         public BooksController(AplicationDBContex context, IMapper mapper)
         : base(context, mapper)
@@ -37,7 +37,7 @@ namespace prueba.Controllers
             Book bookUpd = await context.Books
                 .Include(bookDB => bookDB.Author_Book)
                 .Include(bookBb => bookBb.Book_Category)
-                .FirstOrDefaultAsync(bookDb => bookDb.id == id);
+                .FirstOrDefaultAsync(bookDb => bookDb.Id == id);
             if (bookUpd == null)
                 return NotFound();
             bookUpd = mapper.Map(book, bookUpd);
@@ -53,15 +53,15 @@ namespace prueba.Controllers
             IQueryable<Book> bookQuery = context.Books
                 .Include(bookDb => bookDb.language);
 
-            Book bookOnly = await bookQuery.FirstOrDefaultAsync(bookDb => bookDb.id == id && bookDb.deleteAt == null);
+            Book bookOnly = await bookQuery.FirstOrDefaultAsync(bookDb => bookDb.Id == id && bookDb.deleteAt == null);
             if (bookOnly == null)
                 return NotFound();
 
             List<Book_Category> bookCategories = await context.Book_Category.Where(
-                bookDb => bookDb.category.deleteAt == null && bookDb.bookId == bookOnly.id
+                bookDb => bookDb.category.deleteAt == null && bookDb.bookId == bookOnly.Id
             ).Include(bookDb => bookDb.category).ToListAsync();
             List<Author_Book> bookAuthors = await context.Author_Book.Where(
-                bookDb => bookDb.Author.deleteAt == null && bookDb.BookId == bookOnly.id
+                bookDb => bookDb.Author.deleteAt == null && bookDb.BookId == bookOnly.Id
             ).Include(bookDb => bookDb.Author).ToListAsync();
 
             bookOnly.Author_Book = bookAuthors;
@@ -69,12 +69,12 @@ namespace prueba.Controllers
             return mapper.Map<bookDto>(bookOnly);
         }
         private async Task<Boolean> validListId<TValid>(List<int> ids)
-        where TValid : CommonsModel
+        where TValid : CommonsModel<int>
         {
             List<int> dbIds = await context.Set<TValid>()
                 .Where(db => ids
-                    .Contains(db.id))
-                .Select(db => db.id).ToListAsync();
+                    .Contains(db.Id))
+                .Select(db => db.Id).ToListAsync();
             return dbIds.Count == ids.Count;
         }
         private async Task<errorMessageDto> validListBook(bookCreationDto book)
@@ -85,7 +85,7 @@ namespace prueba.Controllers
                 return new errorMessageDto("No existe alguno de los autores");
             return null;
         }
-        protected override IQueryable<Book> modifyGet(IQueryable<Book> query, bookQueryDto queryParam)
+        protected override async Task<IQueryable<Book>> modifyGet(IQueryable<Book> query, bookQueryDto queryParam)
         {
 
             int[] categoriesQuery = { };
@@ -102,7 +102,7 @@ namespace prueba.Controllers
 
             return queryFinal.Select(dbBook => new Book
             {
-                id = dbBook.id,
+                Id = dbBook.Id,
                 title = dbBook.title,
                 dateCreation = dbBook.dateCreation,
                 numPages = dbBook.numPages,

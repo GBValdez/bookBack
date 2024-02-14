@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace prueba.entities
+namespace prueba.DTOS
 {
-    public class Country : CommonsModel<int>
+    public class rolQueryDto
     {
-        public string name { get; set; }
+        public string NameCont { get; set; }
+
     }
 }

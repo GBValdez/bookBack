@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel;
@@ -10,7 +11,7 @@ using prueba.entities;
 
 namespace prueba
 {
-    public class AplicationDBContex : IdentityDbContext
+    public class AplicationDBContex : IdentityDbContext<userEntity, rolEntity, string>
     {
         public AplicationDBContex(DbContextOptions<AplicationDBContex> options) : base(options)
         {

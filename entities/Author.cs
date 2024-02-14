@@ -9,9 +9,8 @@ using prueba.validators;
 namespace prueba.entities
 {
     //Al heredar de IValidatableObject podemos hacer validaciones desde el modelo
-    public class Author : CommonsModel
+    public class Author : CommonsModel<int>
     {
-        public int id { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
         [StringLength(maximumLength: 120, ErrorMessage = "El campo {0} debe tener {1} caracteres")]

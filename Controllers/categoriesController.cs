@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using prueba.DTOS;
 using prueba.entities;
 
 namespace prueba.Controllers
 {
     [ApiController]
     [Route("category")]
-    public class categoriesController : contrCatalogueBase<Category>
+    public class categoriesController : controllerCommons<Category, catalogueCreationDto, catalogueDto, object, object, int>
     {
         public categoriesController(AplicationDBContex context, IMapper mapper)
        : base(context, mapper)

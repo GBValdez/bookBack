@@ -38,9 +38,16 @@ namespace prueba.autoMapper
             CreateMap<catalogueCreationDto, Category>();
             CreateMap<Category, catalogueDto>();
 
-            CreateMap<IdentityUser, userDto>();
+            CreateMap<userEntity, userDto>()
+            .ForMember(userDtoId => userDtoId.isActive, options => options.MapFrom(src => src.deleteAt == null));
+            ;
+
+
+            CreateMap<rolEntity, rolDto>();
 
         }
+
+
 
         public List<bookDto> mapBooksByAuthor(Author author, authorDto authorDto)
         {

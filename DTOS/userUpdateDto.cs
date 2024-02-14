@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 
 namespace prueba.DTOS
 {
-    public class userDto
+    public class userUpdateDto
     {
-        public string userName { get; set; }
-        public string email { get; set; }
-        public Boolean isActive { get; set; }
+        public Boolean status { get; set; }
         public List<string> roles { get; set; }
     }
 }

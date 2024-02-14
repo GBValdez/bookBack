@@ -18,15 +18,15 @@ namespace prueba.Controllers
     [ApiController]
     [Route("books/{BookId}/comments")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class CommentsController : controllerCommons<Comments, CommentsCreationDto, CommentsDto, commentsParams, commentsParams>
+    public class CommentsController : controllerCommons<Comments, CommentsCreationDto, CommentsDto, commentsParams, commentsParams, int>
     {
-        private readonly UserManager<IdentityUser> userManager;
-        public CommentsController(AplicationDBContex context, IMapper mapper, UserManager<IdentityUser> userManager) : base(context, mapper)
+        private readonly UserManager<userEntity> userManager;
+        public CommentsController(AplicationDBContex context, IMapper mapper, UserManager<userEntity> userManager) : base(context, mapper)
         {
             this.userManager = userManager;
         }
 
-        protected override IQueryable<Comments> modifyGet(IQueryable<Comments> query, commentsParams queryParams)
+        protected override async Task<IQueryable<Comments>> modifyGet(IQueryable<Comments> query, commentsParams queryParams)
         {
             return query.Include(commentDb => commentDb.user);
         }
@@ -41,7 +41,7 @@ namespace prueba.Controllers
                     {
                         validUser = commentDb.user.Id == idUser;
                     }
-                    commentDb.id = validUser ? commentDb.id : -1;
+                    commentDb.Id = validUser ? commentDb.Id : -1;
                     commentDb.user.Email = null;
                 });
 
@@ -56,7 +56,7 @@ namespace prueba.Controllers
 
         protected override async Task<errorMessageDto> validPost(CommentsCreationDto dtoNew, commentsParams commentsParams)
         {
-            Boolean exits = await context.Books.AnyAsync(bookDB => bookDB.id == commentsParams.BookId);
+            Boolean exits = await context.Books.AnyAsync(bookDB => bookDB.Id == commentsParams.BookId);
             if (!exits)
                 return new errorMessageDto("No existe el libro");
             return null;
