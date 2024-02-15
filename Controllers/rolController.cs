@@ -37,6 +37,10 @@ namespace prueba.Controllers
             await rolManager.CreateAsync(newRol);
             return Ok();
         }
+        public override async Task<ActionResult> put(rolCreationDto entityCurrent, [FromRoute] string id, [FromQuery] object queryCreation)
+        {
+            return BadRequest(new errorMessageDto("No se puede modificar el rol"));
+        }
 
         protected override async Task<errorMessageDto> validDelete(rolEntity entity)
         {
