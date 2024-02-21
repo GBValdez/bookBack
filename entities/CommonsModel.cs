@@ -12,7 +12,6 @@ namespace prueba.entities
     {
         public idClass Id { get; set; }
 
-        public DateTime updateAt { get; set; } = DateTime.Now.ToUniversalTime();
         public string userUpdateId { get; set; }
 
         [ForeignKey("userUpdateId")]

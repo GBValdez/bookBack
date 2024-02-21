@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,10 +30,9 @@ namespace prueba.Controllers
 
         public override async Task<ActionResult<rolDto>> post(rolCreationDto newRegister, [FromQuery] object queryParams)
         {
-
             rolEntity newRol = new rolEntity
             {
-                Name = newRegister.name
+                Name = newRegister.name,
             };
             await rolManager.CreateAsync(newRol);
             return Ok();

@@ -138,7 +138,6 @@ namespace prueba.Controllers
                 query
                 .ToListAsync();
             modifyGetResult(listDb);
-            listDb = listDb.OrderBy(db => ((ICommonModel<idClass>)db).updateAt).ToList();
             List<TDto> listDto = mapper.Map<List<TDto>>(listDb);
             return new resPag<TDto>
             {

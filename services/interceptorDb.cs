@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using prueba.entities;
+using prueba.interfaces;
 
 namespace prueba.services
 {
@@ -32,11 +27,10 @@ namespace prueba.services
         private void addUpdate(DbContextEventData eventData)
         {
             string id = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            foreach (var entry in eventData.Context.ChangeTracker.Entries<CommonsModel<int>>())
+            foreach (var entry in eventData.Context.ChangeTracker.Entries<ICommonModelHeader>())
             {
                 if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
                 {
-                    entry.Entity.updateAt = DateTime.UtcNow;
                     entry.Entity.userUpdateId = id;
                 }
             }

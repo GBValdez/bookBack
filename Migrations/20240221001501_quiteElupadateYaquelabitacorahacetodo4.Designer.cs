@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using prueba;
@@ -11,9 +12,11 @@ using prueba;
 namespace prueba.Migrations
 {
     [DbContext(typeof(AplicationDBContex))]
-    partial class AplicationDBContexModelSnapshot : ModelSnapshot
+    [Migration("20240221001501_quiteElupadateYaquelabitacorahacetodo4")]
+    partial class quiteElupadateYaquelabitacorahacetodo4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -365,6 +368,9 @@ namespace prueba.Migrations
                     b.Property<DateTime?>("deleteAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("updateAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("userUpdateId")
                         .HasColumnType("text");
 
@@ -432,6 +438,9 @@ namespace prueba.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.Property<DateTime?>("deleteAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("updateAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("userUpdateId")

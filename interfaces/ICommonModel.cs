@@ -8,15 +8,9 @@ using prueba.entities;
 
 namespace prueba.interfaces
 {
-    public interface ICommonModel<IdClass>
+    public interface ICommonModel<IdClass> : ICommonModelHeader
     {
         public IdClass Id { get; set; }
-
-        public DateTime updateAt { get; set; }
-        public string userUpdateId { get; set; }
-
-        public DateTime? deleteAt { get; set; }
-        public userEntity userUpdate { get; set; }
 
     }
 }
