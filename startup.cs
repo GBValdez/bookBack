@@ -51,7 +51,7 @@ namespace prueba
 
             services.AddCors(options =>
                 options.AddDefaultPolicy(
-                    builder => builder.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowAnyMethod())
+                    builder => builder.WithOrigins(Configuration["FrontUrl"]).AllowAnyMethod().AllowAnyHeader())
             );
             services.AddResponseCaching();
 

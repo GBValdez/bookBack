@@ -27,7 +27,6 @@ namespace prueba.Controllers
             this.userManager = userManager;
         }
 
-
         public override async Task<ActionResult<rolDto>> post(rolCreationDto newRegister, [FromQuery] object queryParams)
         {
             rolEntity newRol = new rolEntity

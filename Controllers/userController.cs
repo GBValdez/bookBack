@@ -109,12 +109,18 @@ namespace prueba.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> register(userCreationDto credentials)
         {
+            if (await userManager.FindByEmailAsync(credentials.email) != null)
+                return BadRequest(new errorMessageDto("El correo ya esta en uso"));
+            if (await userManager.FindByNameAsync(credentials.userName) != null)
+                return BadRequest(new errorMessageDto("El Nombre de usuario ya esta en uso"));
             userEntity user = new userEntity() { UserName = credentials.userName, Email = credentials.email };
 
             IdentityResult result = await userManager.CreateAsync(user, credentials.password);
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(user, "userNormal");
+                IList<string> roles = new List<string> { "userNormal", "ADMINISTRATOR" };
+                await userManager.AddToRolesAsync(user, roles);
+
                 string token = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                 emailService.SendEmail(new emailSendDto
